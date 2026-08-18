@@ -48,8 +48,8 @@ body{font-family:"Microsoft YaHei",sans-serif;background:#fff;color:#333;}
 </div>
 
 <div class="panel" id="p-ctrl">
-  <label>操控对象</label><input id="ctarget" placeholder="如：安可可">
-  <div class="ctrl-row"><span>脸红</span><input type="checkbox" id="c1"><span>喘气</span><input type="checkbox" id="c2"><span>腿软</span><input type="checkbox" id="c3"><span>失神</span><input type="checkbox" id="c4"><span>敏感</span><input type="checkbox" id="c5"></div>
+  <label>操控对象</label><input id="ctarget" placeholder="如：苏小桃">
+  <div class="ctrl-row"><span>阴道·流水</span><input type="checkbox" id="c1"><span>阴蒂·快感</span><input type="checkbox" id="c2"><span>阴唇·瘙痒</span><input type="checkbox" id="c3"><span>膀胱·漏尿</span><input type="checkbox" id="c4"><span>乳头·摩擦即快感</span><input type="checkbox" id="c5"></div>
   <button class="go" onclick="doCtrl()">应用操控</button>
 </div>
 
@@ -83,7 +83,6 @@ function closePanels(){ document.querySelectorAll('.panel').forEach(function(p){
 function toggle(p){ var el=document.getElementById(p); if(el.classList.contains('open')){el.classList.remove('open');}else{closePanels();el.classList.add('open');} }
 document.querySelectorAll('.bar button[data-p]').forEach(function(b){ b.addEventListener('click',function(){ toggle('p-'+b.getAttribute('data-p')); }); });
 
-/* 中性措辞：只陈述"发布了什么/如何生效"，不硬塞情绪，剧情交给AI自然发展 */
 function doRule(){
   var n=document.getElementById('rname').value.trim();
   var c=document.getElementById('rcontent').value.trim();
@@ -96,14 +95,15 @@ function doPriv(){
   if(!t||!c){ alert('请填写对象和内容'); return; }
   send('（樊麒给'+t+'的手机私发了一条消息）内容：'+c+'。这条消息只有'+t+'一个人收到，其他人对此毫不知情。');
 }
+/* 操控：按玩家设计的身体敏感部位开关，对应 stat_data['操控状态'][对象][部位]=true */
 function doCtrl(){
   var obj=document.getElementById('ctarget').value.trim();
   if(!obj){ alert('请填写操控对象'); return; }
-  var names=['脸红','喘气','腿软','失神','敏感'];
+  var parts=['阴道','阴蒂','阴唇','膀胱','乳头'];
   var on=[];
-  for(var i=0;i<5;i++){ var cb=document.getElementById('c'+(i+1)); if(cb&&cb.checked){ on.push(names[i]); } }
-  if(on.length===0){ alert('请至少勾选一个效果'); return; }
-  send('（樊麒通过圣樱控制台，对'+obj+'施加了身体状态操控）生效效果：'+on.join('、')+'。');
+  for(var i=0;i<5;i++){ var cb=document.getElementById('c'+(i+1)); if(cb&&cb.checked){ on.push(parts[i]); } }
+  if(on.length===0){ alert('请至少勾选一个部位'); return; }
+  send('（樊麒通过圣樱控制台，对'+obj+'施加身体操控）开启的部位：'+on.join('、')+'。请据此更新 stat_data 的角色操控状态（对应部位置为开启），并描写'+obj+'身体出现相应反应：阴道持续流水／阴蒂持续快感／阴唇持续瘙痒／膀胱缓慢漏尿／乳头衣物摩擦即快感。');
 }
 function doAct(){
   var n=document.getElementById('aname').value.trim();
