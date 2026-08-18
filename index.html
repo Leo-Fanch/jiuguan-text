@@ -90,8 +90,8 @@
 </div>
 
 <script>
-function getTA(){ return document.querySelector('#send_textarea') || document.querySelector('.send_textarea textarea') || document.querySelector('textarea.send_textarea'); }
-function inject(t){ var ta=getTA(); if(ta){ ta.value=t; ta.focus(); } else alert('未找到输入框：\n'+t); }
+function getTA(){ return document.getElementById('send_textarea') || document.querySelector('#send_form textarea'); }
+function inject(t){ var ta=getTA(); if(ta){ ta.value=t; try{ ta.dispatchEvent(new Event('input',{bubbles:true})); }catch(e){} ta.focus(); } else alert('未找到输入框：#send_textarea'); }
 function tog(n){
   for(var i=1;i<=5;i++){
     var p=document.getElementById('p'+i), b=document.getElementById('tb'+i);
@@ -100,21 +100,21 @@ function tog(n){
     b.classList.toggle('on', show);
   }
 }
-function doRule(){ var c=document.getElementById('rtext').value.trim(); if(!c){alert('先填内容');return;} inject('通过校规管理APP，发布校规（广播全校）：'+c); }
-function doPrivate(){ var t=document.getElementById('ptarget').value.trim()||'指定对象', c=document.getElementById('ptext').value.trim(); if(!c){alert('先填私发内容');return;} inject('通过校规管理APP，私发校规给【'+t+'】：'+c+'（仅推送到其手机，公告栏/广播不播，其他学生不知情，只对该对象生效）'); }
+function doRule(){ var c=document.getElementById('rtext').value.trim(); if(!c){alert('先填内容');return;} inject('📜 校规发布（广播全校）：\n通过校规管理APP发布新校规——\n【'+c+'】\n请按正式校规格式公文化，立即全校生效，全校知晓并遵守。'); }
+function doPrivate(){ var t=document.getElementById('ptarget').value.trim()||'指定对象', c=document.getElementById('ptext').value.trim(); if(!c){alert('先填私发内容');return;} inject('📮 校规私发（仅【'+t+'】可见）：\n通过校规管理APP私发校规给【'+t+'】——\n【'+c+'】\n仅推送到【'+t+'】的手机，公告栏/广播不播、其他学生不知情，只对该对象生效。'); }
 function doControl(){
   var t=document.getElementById('ctarget').value.trim(); if(!t){alert('先填操控对象');return;}
   var m=[['阴道',cv],['阴蒂',cc],['阴唇',cl],['膀胱',cb],['乳头',cn]];
   var on=[],off=[]; m.forEach(function(p){ p[1].checked?on.push(p[0]):off.push(p[0]); });
-  inject('对【'+t+'】更新操控状态：'+(on.length?'开启：'+on.join('、')+'；':'全部关闭；')+'请记录进操控状态变量并据此演绎此后身体反应。');
+  inject('🎛 操控状态更新（对象【'+t+'】）：\n'+(on.length?'开启：'+on.join('、')+'。':'全部关闭。')+(off.length?'关闭：'+off.join('、')+'。':'')+'\n请将该状态写入"操控状态"变量，并自此按此状态持续演绎'+t+'的身体反应。');
 }
 function doActivity(){
   var a=document.getElementById('aname').value.trim(); if(!a){alert('先填活动名');return;}
   var s=document.getElementById('astart').value.trim(), e=document.getElementById('aend').value.trim(), p=document.getElementById('aplace').value.trim();
-  var h=document.getElementById('ahost').checked?'，我是主理人（活动中由我主导，说话主动权在我）':'';
-  inject('通过校规管理APP，举办活动：'+a+'；时间：'+(s||'?')+'-'+(e||'?')+'；地点：'+(p||'?')+h);
+  var h=document.getElementById('ahost').checked?'\n主办：{{user}}（玩家为活动主体，活动中由我主导节奏、说话主动权在我）':'';
+  inject('🎪 校园活动（通过校规管理APP）：\n活动名称：'+a+'\n时间：'+(s||'?')+' 至 '+(e||'?')+'\n地点：'+(p||'?')+h+'\n请按活动机制广播全校。');
 }
-function doList(){ inject('🗂 请汇报当前已登场的女生名单（名字+身份）'); }
+function doList(){ inject('🗂 请汇报当前已登场的女生名单（名字+身份，可附简要资料）'); }
 </script>
 </body>
 </html>
