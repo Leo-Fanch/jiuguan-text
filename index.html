@@ -23,10 +23,10 @@ input,textarea{width:100%;padding:9px;border:1px solid #f2d6de;border-radius:9px
 .toggle.on{background:#d65a7a}
 .toggle::after{content:'';position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;transition:.2s}
 .toggle.on::after{left:26px}
-#out{background:#fff0f5;border-radius:9px;padding:10px;font-size:13px;color:#7a4a5a;white-space:pre-wrap}
 .host{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:6px}
 .host input{width:auto}
 h3{font-size:15px;color:#d65a7a;margin-bottom:10px}
+#out{background:#fff0f5;border-radius:9px;padding:10px;font-size:13px;color:#7a4a5a;white-space:pre-wrap}
 </style>
 </head>
 <body>
@@ -45,14 +45,12 @@ h3{font-size:15px;color:#d65a7a;margin-bottom:10px}
   <label>内容（一句话）</label><textarea id="rContent" placeholder="内容"></textarea>
   <button class="sub" onclick="doRule()">发布广播</button>
 </div>
-
 <div id="priv" class="panel" style="display:none">
   <h3>📮 私发校规</h3>
   <div class="row"><input id="pTarget" placeholder="对象 如苏小桃"><input id="pName" placeholder="规则名"></div>
   <label>内容</label><textarea id="pContent"></textarea>
   <button class="sub" onclick="doPriv()">私发</button>
 </div>
-
 <div id="ctl" class="panel" style="display:none">
   <h3>🎛 身体操控</h3>
   <label>对象</label><input id="cTarget" placeholder="如 苏小桃">
@@ -63,7 +61,6 @@ h3{font-size:15px;color:#d65a7a;margin-bottom:10px}
   <div class="sw"><span>乳头·摩擦快感</span><div class="toggle" id="t5" onclick="tog(5)"></div></div>
   <button class="sub" onclick="doCtl()">写入操控状态</button>
 </div>
-
 <div id="act" class="panel" style="display:none">
   <h3>🎪 校园活动</h3>
   <div class="row"><input id="aName" placeholder="活动名"><input id="aTime" placeholder="起止 3.5-3.7"></div>
@@ -71,25 +68,28 @@ h3{font-size:15px;color:#d65a7a;margin-bottom:10px}
   <div class="host"><input type="checkbox" id="aHost"><label for="aHost" style="margin:0">我是主理人（主导节奏）</label></div>
   <button class="sub" onclick="doAct()">发起活动</button>
 </div>
-
 <div id="out"></div>
 
 <script>
 var st={1:0,2:0,3:0,4:0,5:0};
 function tog(n){st[n]=st[n]?0:1;document.getElementById('t'+n).classList[st[n]?'add':'remove']('on');}
-function show(id){['rule','priv','ctl','act'].forEach(function(x){document.getElementById(x).style.display=(x===id)?'block':'none';});}
-function W(path,val){
-  if(typeof updateVariablesWith!=='function'){alert('tavern-helper 未就绪');return false;}
-  updateVariablesWith(function(v){v.stat_data=v.stat_data||{};var c=v.stat_data;for(var i=0;i<path.length-1;i++){var k=path[i];c[k]=c[k]||{};c=c[k];}c[path[path.length-1]]=val;return v;},{type:'message',message_id:'latest'});
+function show(id){
+  var cur=document.getElementById(id).style.display;
+  ['rule','priv','ctl','act'].forEach(function(x){document.getElementById(x).style.display='none';});
+  if(cur!=='block'){document.getElementById(id).style.display='block';}
+}
+// 把操作指令作为一条系统消息插入对话（AI 读对话=必读必执行）
+function send(txt){
+  if(typeof createChatMessages!=='function'){alert('tavern-helper 未就绪');return false;}
+  createChatMessages([{role:'system', name:'', message:txt, is_hidden:false}], {refresh:'all'});
   return true;
 }
-function doRule(){var n=(document.getElementById('rName').value||'').trim();var c=(document.getElementById('rContent').value||'').trim();if(!c){alert('填内容');return;}W(['校规',n||('校规'+Date.now())],{内容:c,开关:true,期限:''})&&alert('已发布广播校规');}
-function doPriv(){var t=(document.getElementById('pTarget').value||'').trim();var n=(document.getElementById('pName').value||'').trim();var c=(document.getElementById('pContent').value||'').trim();if(!t||!c){alert('填对象和内容');return;}W(['校规',n||('私发'+Date.now())],{内容:c,私发给:t,开关:true,期限:''})&&alert('已私发给'+t);}
-function doCtl(){var t=(document.getElementById('cTarget').value||'').trim();if(!t){alert('填对象');return;}W(['操控状态',t],{阴道:st[1],阴蒂:st[2],阴唇:st[3],膀胱:st[4],乳头:st[5]})&&alert('已写入'+t+'操控状态');}
-function doAct(){var n=(document.getElementById('aName').value||'').trim();if(!n){alert('填活动名');return;}var ti=(document.getElementById('aTime').value||'').trim();var p=(document.getElementById('aPlace').value||'').trim();var h=document.getElementById('aHost').checked;W(['活动',n],{活动地点:p,活动开启时间:ti,活动结束时间:ti,主办人:h?'樊麒':''})&&alert('已发起活动'+n);}
+function doRule(){var n=(document.getElementById('rName').value||'').trim();var c=(document.getElementById('rContent').value||'').trim();if(!c){alert('填内容');return;}send('📜 校规发布（广播全校）\n规则名：【'+n+'】\n内容：【'+c+'】\n请发布为正式校规，立即全校生效，全校知晓并遵守。')&&alert('已发布广播校规');}
+function doPriv(){var t=(document.getElementById('pTarget').value||'').trim();var n=(document.getElementById('pName').value||'').trim();var c=(document.getElementById('pContent').value||'').trim();if(!t||!c){alert('填对象和内容');return;}send('📮 校规私发（仅【'+t+'】）\n规则名：【'+n+'】\n内容：【'+c+'】\n仅推送到'+t+'手机，其他学生不知情，只对该对象生效。')&&alert('已私发给'+t);}
+function doCtl(){var t=(document.getElementById('cTarget').value||'').trim();if(!t){alert('填对象');return;}var parts=[];parts.push('阴道'+(st[1]?'开':'关'));parts.push('阴蒂'+(st[2]?'开':'关'));parts.push('阴唇'+(st[3]?'开':'关'));parts.push('膀胱'+(st[4]?'开':'关'));parts.push('乳头'+(st[5]?'开':'关'));send('🎛 操控状态更新（对象【'+t+'】）\n'+parts.join('，')+'\n请根据此持续描写'+t+'的身体反应。')&&alert('已写入'+t+'操控状态');}
+function doAct(){var n=(document.getElementById('aName').value||'').trim();if(!n){alert('填活动名');return;}var ti=(document.getElementById('aTime').value||'').trim();var p=(document.getElementById('aPlace').value||'').trim();var h=document.getElementById('aHost').checked;send('🎪 校园活动\n名称：【'+n+'】 时间：【'+ti+'】 地点：【'+p+'】'+(h?' 主办：樊麒（玩家为主导，节奏由玩家掌控）':'')+'\n请广播全校并展开活动。')&&alert('已发起活动'+n);}
 function doList(){
-  var out='名单：\n';
-  try{var v=typeof getVariables==='function'?getVariables({type:'message',message_id:'latest'}):null;var sd=(v&&v.stat_data)||{};var rs=sd['角色']||{};out+=(Object.keys(rs).length?Object.keys(rs).join('、'):'暂无')+'\n\n当前校规：';var r=sd['校规']||{};out+=(Object.keys(r).length?Object.keys(r).join('、'):'暂无');}catch(e){out+='读取失败';}
+  var out='名单由 AI 维护，可发消息让 AI 汇报。';
   document.getElementById('out').textContent=out;
 }
 </script>
