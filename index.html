@@ -5,99 +5,118 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>圣樱控制台</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:#fff5f8;color:#5a3a44;padding:10px}
-.bar{display:flex;gap:6px;align-items:center;padding:6px;background:#fdf2f7;border:1px solid #f7c6d4;border-radius:12px;flex-wrap:wrap;margin-bottom:10px}
-.logo{font-size:14px;font-weight:800;color:#d65a7a}
-.btn{flex:1;min-width:52px;padding:10px 3px;border:none;border-radius:9px;background:linear-gradient(135deg,#fbe0e9,#f090ad);color:#fff;font-weight:bold;font-size:14px;cursor:pointer}
-.btn:active{transform:scale(.97)}
-.mode{display:flex;align-items:center;gap:4px;font-size:12px;color:#b04766;background:#fff;border:1px solid #f2d6de;border-radius:8px;padding:4px 7px;cursor:pointer;flex:none}
-.mode input{width:auto;accent-color:#d65a7a}
-.panel{background:#fff;border-radius:12px;padding:12px;margin-bottom:10px;box-shadow:0 2px 10px rgba(214,90,122,.08)}
-label{display:block;font-size:12px;color:#99808a;margin:8px 0 4px}
-input,textarea{width:100%;padding:9px;border:1px solid #f2d6de;border-radius:9px;font-size:14px;outline:none;background:#fffdfe}
-.row{display:flex;gap:8px}
-.row input{flex:1}
-.sub{width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,#f090ad,#d65a7a);color:#fff;font-size:15px;font-weight:bold;cursor:pointer;margin-top:10px}
-.sw{display:flex;justify-content:space-between;align-items:center;background:#fff5f8;border-radius:9px;padding:7px 10px;margin-bottom:6px}
-.sw span{font-size:14px}
-.toggle{width:50px;height:27px;border-radius:20px;background:#f2d6de;position:relative;cursor:pointer;transition:.2s;flex:none}
-.toggle.on{background:#d65a7a}
-.toggle::after{content:'';position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;transition:.2s}
-.toggle.on::after{left:26px}
-.host{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:6px}
-.host input{width:auto}
-h3{font-size:15px;color:#d65a7a;margin-bottom:10px}
-#out{background:#fff0f5;border-radius:9px;padding:10px;font-size:13px;color:#7a4a5a;white-space:pre-wrap}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Microsoft YaHei",sans-serif;background:#fff;color:#333;}
+.bar{display:flex;align-items:center;gap:6px;padding:6px 8px;background:linear-gradient(90deg,#ffeef5,#fff5ee);border:1px solid #ffc1d4;border-radius:8px;flex-wrap:wrap;}
+.logo{font-weight:700;color:#e05a86;font-size:13px;margin-right:4px;}
+.bar button{border:1px solid #ffb3c9;background:#fff;color:#c9456f;border-radius:6px;padding:4px 9px;font-size:12px;cursor:pointer;}
+.bar button:hover{background:#ffe0ec;}
+.mode{display:flex;align-items:center;gap:3px;font-size:11px;color:#888;margin-left:auto;}
+.panel{display:none;border:1px solid #ffc1d4;border-top:none;border-radius:0 0 8px 8px;padding:10px;background:#fffafc;}
+.panel.open{display:block;}
+.panel label{display:block;font-size:12px;color:#555;margin:6px 0 2px;}
+.panel input,.panel select{width:100%;padding:5px 7px;border:1px solid #ffc1d4;border-radius:5px;font-size:12px;background:#fff;}
+.ctrl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0;}
+.ctrl-row span{font-size:12px;color:#444;}
+.ctrl-row input[type=checkbox]{width:auto;transform:scale(1.1);}
+.go{margin-top:9px;background:linear-gradient(90deg,#e05a86,#ff8fb0);color:#fff;border:none;border-radius:6px;padding:6px 0;width:100%;font-size:13px;font-weight:600;cursor:pointer;}
+.hint{font-size:10px;color:#bbb;margin-top:5px;text-align:center;}
 </style>
 </head>
 <body>
+
 <div class="bar">
-  <span class="logo">🌸控制台</span>
-  <button class="btn" onclick="show('rule')">校规</button>
-  <button class="btn" onclick="show('priv')">私发</button>
-  <button class="btn" onclick="show('ctl')">操控</button>
-  <button class="btn" onclick="show('act')">活动</button>
-  <button class="btn" onclick="doList()">名单</button>
+  <span class="logo">🌸圣樱</span>
+  <button data-p="rule">校规</button>
+  <button data-p="priv">私发</button>
+  <button data-p="ctrl">操控</button>
+  <button data-p="act">活动</button>
+  <button data-p="list">名单</button>
   <label class="mode"><input type="checkbox" id="toInput">先填输入框</label>
 </div>
 
-<div id="rule" class="panel" style="display:none">
-  <h3>📜 发布校规（广播全校）</h3>
-  <label>规则名</label><input id="rName" placeholder="如 着装规范">
-  <label>内容（一句话）</label><textarea id="rContent" placeholder="内容"></textarea>
-  <button class="sub" onclick="doRule()">发布广播</button>
+<div class="panel" id="p-rule">
+  <label>校规名称</label><input id="rname" placeholder="如：午休不许出教室">
+  <label>校规内容</label><input id="rcontent" placeholder="详细规则内容">
+  <button class="go" onclick="doRule()">发布校规</button>
 </div>
-<div id="priv" class="panel" style="display:none">
-  <h3>📮 私发校规</h3>
-  <div class="row"><input id="pTarget" placeholder="对象 如苏小桃"><input id="pName" placeholder="规则名"></div>
-  <label>内容</label><textarea id="pContent"></textarea>
-  <button class="sub" onclick="doPriv()">私发</button>
+
+<div class="panel" id="p-priv">
+  <label>发给谁</label><input id="ptarget" placeholder="如：苏小桃">
+  <label>私发内容</label><input id="pcontent" placeholder="只有对方手机收到">
+  <button class="go" onclick="doPriv()">私发</button>
 </div>
-<div id="ctl" class="panel" style="display:none">
-  <h3>🎛 身体操控</h3>
-  <label>对象</label><input id="cTarget" placeholder="如 苏小桃">
-  <div class="sw"><span>阴道·流水</span><div class="toggle" id="t1" onclick="tog(1)"></div></div>
-  <div class="sw"><span>阴蒂·性快感</span><div class="toggle" id="t2" onclick="tog(2)"></div></div>
-  <div class="sw"><span>阴唇·瘙痒</span><div class="toggle" id="t3" onclick="tog(3)"></div></div>
-  <div class="sw"><span>膀胱·缓慢漏尿</span><div class="toggle" id="t4" onclick="tog(4)"></div></div>
-  <div class="sw"><span>乳头·摩擦快感</span><div class="toggle" id="t5" onclick="tog(5)"></div></div>
-  <button class="sub" onclick="doCtl()">写入操控状态</button>
+
+<div class="panel" id="p-ctrl">
+  <label>操控对象</label><input id="ctarget" placeholder="如：安可可">
+  <div class="ctrl-row"><span>脸红</span><input type="checkbox" id="c1"><span>喘气</span><input type="checkbox" id="c2"><span>腿软</span><input type="checkbox" id="c3"><span>失神</span><input type="checkbox" id="c4"><span>敏感</span><input type="checkbox" id="c5"></div>
+  <button class="go" onclick="doCtrl()">应用操控</button>
 </div>
-<div id="act" class="panel" style="display:none">
-  <h3>🎪 校园活动</h3>
-  <div class="row"><input id="aName" placeholder="活动名"><input id="aTime" placeholder="起止 3.5-3.7"></div>
-  <div class="row" style="margin-top:8px"><input id="aPlace" placeholder="地点"></div>
-  <div class="host"><input type="checkbox" id="aHost"><label for="aHost" style="margin:0">我是主理人（主导节奏）</label></div>
-  <button class="sub" onclick="doAct()">发起活动</button>
+
+<div class="panel" id="p-act">
+  <label>活动名称</label><input id="aname" placeholder="如：海边定情夏祭">
+  <label>时间 / 地点</label><input id="atime" placeholder="如：本周六下午 / 圣樱学生街">
+  <button class="go" onclick="doAct()">开启活动</button>
 </div>
-<div id="out"></div>
+
+<div class="panel" id="p-list">
+  <button class="go" onclick="doList()">查看名单 / 状态</button>
+</div>
+
+<div class="hint">发布内容均为樊麒的幕后杰作，剧情中请描写他得意的样子</div>
 
 <script>
-var st={1:0,2:0,3:0,4:0,5:0};
-function tog(n){st[n]=st[n]?0:1;document.getElementById('t'+n).classList[st[n]?'add':'remove']('on');}
-function show(id){
-  var cur=document.getElementById(id).style.display;
-  ['rule','priv','ctl','act'].forEach(function(x){document.getElementById(x).style.display='none';});
-  if(cur!=='block'){document.getElementById(id).style.display='block';}
-}
-// 勾选"先填输入框"→填进输入框可编辑；否则一键直发并触发AI
+var UNF = '';
+var RAW = 'https://raw.githubusercontent.com/Leo-Fanch/jiuguan-text/main/index.html?v=13';
+
+function apiOk(){ return typeof createChatMessages==='function' && typeof triggerSlash==='function'; }
+
 function send(txt){
-  var toI=document.getElementById('toInput').checked;
+  var toI=document.getElementById('toInput')&&document.getElementById('toInput').checked;
+  if(!apiOk()){ alert('酒馆助手未就绪'); return false; }
   if(toI){
-    if(typeof triggerSlash!=='function'){alert('tavern-helper 未就绪');return false;}
-    triggerSlash('/setinput '+txt); alert('已填入输入框，可编辑后发送');
+    triggerSlash('/setinput '+txt);
     return true;
   }
-  if(typeof createChatMessages!=='function'||typeof triggerSlash!=='function'){alert('tavern-helper 未就绪');return false;}
-  createChatMessages([{role:'user', name:'樊麒', message:txt}]).then(function(){ triggerSlash('/trigger'); });
+  createChatMessages([{role:'user',name:'樊麒',message:txt}]).then(function(){ triggerSlash('/trigger'); });
   return true;
 }
-function doRule(){var n=(document.getElementById('rName').value||'').trim();var c=(document.getElementById('rContent').value||'').trim();if(!c){alert('填内容');return;}send('📜 校规发布（广播全校）\n规则名：【'+n+'】\n内容：【'+c+'】\n请发布为正式校规，立即全校生效，全校知晓并遵守。');}
-function doPriv(){var t=(document.getElementById('pTarget').value||'').trim();var n=(document.getElementById('pName').value||'').trim();var c=(document.getElementById('pContent').value||'').trim();if(!t||!c){alert('填对象和内容');return;}send('📮 校规私发（仅【'+t+'】）\n规则名：【'+n+'】\n内容：【'+c+'】\n仅推送到'+t+'手机，其他学生不知情，只对该对象生效。');}
-function doCtl(){var t=(document.getElementById('cTarget').value||'').trim();if(!t){alert('填对象');return;}var parts=[];parts.push('阴道'+(st[1]?'开':'关'));parts.push('阴蒂'+(st[2]?'开':'关'));parts.push('阴唇'+(st[3]?'开':'关'));parts.push('膀胱'+(st[4]?'开':'关'));parts.push('乳头'+(st[5]?'开':'关'));send('🎛 操控状态更新（对象【'+t+'】）\n'+parts.join('，')+'\n请据此持续描写'+t+'的身体反应。');}
-function doAct(){var n=(document.getElementById('aName').value||'').trim();if(!n){alert('填活动名');return;}var ti=(document.getElementById('aTime').value||'').trim();var p=(document.getElementById('aPlace').value||'').trim();var h=document.getElementById('aHost').checked;send('🎪 校园活动\n名称：【'+n+'】 时间：【'+ti+'】 地点：【'+p+'】'+(h?' 主办：樊麒（玩家为主导，节奏由玩家掌控）':'')+'\n请广播全校并展开活动。');}
-function doList(){ send('🗂 请汇报当前已登场女生名单（名字+身份）。'); }
+
+function closePanels(){ document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');}); }
+function toggle(p){ var el=document.getElementById(p); if(el.classList.contains('open')){el.classList.remove('open');}else{closePanels();el.classList.add('open');} }
+document.querySelectorAll('.bar button[data-p]').forEach(function(b){ b.addEventListener('click',function(){ toggle('p-'+b.getAttribute('data-p')); }); });
+
+function doRule(){
+  var n=document.getElementById('rname').value.trim();
+  var c=document.getElementById('rcontent').value.trim();
+  if(!n||!c){ alert('请填写校规名称和内容'); return; }
+  send('🎃（樊麒在圣樱控制台上发布了一条校规）校规标题：'+n+'｜校规内容：'+c+'。这条校规现已通过校董会名义全校生效，请描写校规开始执行、以及樊麒得意地观察过程的剧情。');
+}
+function doPriv(){
+  var t=document.getElementById('ptarget').value.trim();
+  var c=document.getElementById('pcontent').value.trim();
+  if(!t||!c){ alert('请填写对象和内容'); return; }
+  send('🎃（樊麒给'+t+'的手机私发了一条消息）内容：'+c+'。只有'+t+'一个人收到，其他人不知情。请描写'+t+'收到消息、以及樊麒在暗处满意的剧情。');
+}
+function doCtrl(){
+  var t=document.getElementById('ptarget')||null;
+  var obj=document.getElementById('ctarget').value.trim();
+  if(!obj){ alert('请填写操控对象'); return; }
+  var names=['脸红','喘气','腿软','失神','敏感'];
+  var on=[];
+  for(var i=0;i<5;i++){ var cb=document.getElementById('c'+(i+1)); if(cb&&cb.checked){ on.push(names[i]); } }
+  if(on.length===0){ alert('请至少勾选一个效果'); return; }
+  send('🎃（樊麒正在用校规管理APP操控'+obj+'的身体状态）对该目标生效的效果：'+on.join('、')+'。请描写'+obj+'的身体开始出现这些反应、以及樊麒在旁得意握有掌控权的剧情。');
+}
+function doAct(){
+  var n=document.getElementById('aname').value.trim();
+  var t=document.getElementById('atime').value.trim();
+  if(!n){ alert('请填写活动名称'); return; }
+  send('🎃（樊麒在圣樱控制台上开启了一个校园活动）活动：'+n+'｜时间地点：'+(t||'未定')+'。已通过校园广播全校通知。请描写活动宣传/开始安排、以及樊麒得意的剧情。');
+}
+function doList(){
+  send('🎃（樊麒打开圣樱控制台查看名单/状态）请以控制台的视角，列出当前已认识/已入册的女生名单和她们的大致状态。');
+}
 </script>
 </body>
 </html>
