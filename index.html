@@ -89,13 +89,13 @@ function doRule(){
   var n=document.getElementById('rname').value.trim();
   var c=document.getElementById('rcontent').value.trim();
   if(!n||!c){ alert('请填写校规名称和内容'); return; }
-  send('（樊麒在圣樱控制台上发布了一条校规）校规标题：'+n+'｜校规内容：'+c+'。这条校规现已以校董会名义全校生效，校园公告、广播、学生手册同步更新。');
+  send('{{user}}用自己的手机发布了校规：「'+n+'」规则内容「'+c+'」，以校董会名义全校即刻生效。');
 }
 function doPriv(){
   var t=document.getElementById('ptarget').value.trim();
   var c=document.getElementById('pcontent').value.trim();
   if(!t||!c){ alert('请填写对象和内容'); return; }
-  send('（樊麒给'+t+'的手机私发了一条消息）内容：'+c+'。这条消息只有'+t+'一个人收到，其他人对此毫不知情。');
+  send('{{user}}用手机给'+t+'私发了消息：「'+c+'」。仅'+t+'一人可见，其他人不知情。');
 }
 /* 操控：按玩家设计的身体敏感部位开关，对应 stat_data['操控状态'][对象][部位]=true */
 function doCtrl(){
@@ -105,16 +105,16 @@ function doCtrl(){
   var on=[];
   for(var i=0;i<5;i++){ var cb=document.getElementById('c'+(i+1)); if(cb&&cb.checked){ on.push(parts[i]); } }
   if(on.length===0){ alert('请至少勾选一个部位'); return; }
-  send('（樊麒通过圣樱控制台，对'+obj+'施加身体操控）开启的部位：'+on.join('、')+'。请据此更新 stat_data 的角色操控状态（对应部位置为开启），并描写'+obj+'身体出现相应反应：阴道持续流水／阴蒂持续快感／阴唇持续瘙痒／膀胱缓慢漏尿／乳头衣物摩擦即快感。');
+  send('{{user}}用手机对'+obj+'施加身体操控，开启的部位：'+on.join('、')+'。请将 stat_data 该角色操控状态对应部位置为开启，并按其效果演出。');
 }
 function doAct(){
   var n=document.getElementById('aname').value.trim();
   var t=document.getElementById('atime').value.trim();
   if(!n){ alert('请填写活动名称'); return; }
-  send('（樊麒在圣樱控制台上开启了一个校园活动）活动：'+n+'｜时间地点：'+(t||'未定')+'。已通过校园广播全校通知。');
+  send('{{user}}用手机开启了校园活动：「'+n+'」时间地点「'+(t||'未定')+'」，以校园广播名义全校通知。');
 }
 function doList(){
-  send('（樊麒打开圣樱控制台查看名单/状态）请以控制台的视角，列出当前已认识、已入册的女生名单，以及她们各自当前的大致状态。');
+  send('{{user}}在手机上查看名单/状态：请列出当前已认识、已入册的女生名单，以及她们各自当前的大致状态。');
 }
 </script>
 </body>
