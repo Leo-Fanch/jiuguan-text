@@ -68,6 +68,13 @@ body{font-family:"Microsoft YaHei",sans-serif;background:#fff;color:#333;}
 
 <script>
 function autoGrow(el){ el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }
+function writeStat(patchFn){
+  try{
+    if(typeof updateVariablesWith==='function'){
+      updateVariablesWith(function(v){ v.stat_data=v.stat_data||{}; patchFn(v.stat_data); return v; }, {type:'message',message_id:'latest'});
+    }
+  }catch(e){}
+}
 function apiOk(){ return typeof createChatMessages==='function' && typeof triggerSlash==='function'; }
 
 function send(txt){
@@ -89,13 +96,15 @@ function doRule(){
   var n=document.getElementById('rname').value.trim();
   var c=document.getElementById('rcontent').value.trim();
   if(!n||!c){ alert('请填写校规名称和内容'); return; }
-  send('{{user}}用自己的手机发布了校规：「'+n+'」规则内容「'+c+'」，以校董会名义全校即刻生效。');
+  send('{{user}}用自己的手机发布了校规：「'+n+'」规则内容「'+c+'」，以校董会名义全校即刻生效，师生的意志与行为也一并随之改变。');
+  writeStat(function(sd){ sd['校规']=sd['校规']||{}; sd['校规'][n]={内容:c,生效:true,期限:''}; });
 }
 function doPriv(){
   var t=document.getElementById('ptarget').value.trim();
   var c=document.getElementById('pcontent').value.trim();
   if(!t||!c){ alert('请填写对象和内容'); return; }
   send('{{user}}用手机给'+t+'私发了消息：「'+c+'」。仅'+t+'一人可见，其他人不知情。');
+  writeStat(function(sd){ sd['私发记录']=sd['私发记录']||[]; sd['私发记录'].push({对象:t,内容:c,时间:'当前剧情时刻'}); });
 }
 /* 操控：按玩家设计的身体敏感部位开关，对应 stat_data['操控状态'][对象][部位]=true */
 function doCtrl(){
@@ -105,13 +114,15 @@ function doCtrl(){
   var on=[];
   for(var i=0;i<5;i++){ var cb=document.getElementById('c'+(i+1)); if(cb&&cb.checked){ on.push(parts[i]); } }
   if(on.length===0){ alert('请至少勾选一个部位'); return; }
-  send('{{user}}用手机对'+obj+'施加身体操控，开启的部位：'+on.join('、')+'。请将 stat_data 该角色操控状态对应部位置为开启，并按其效果演出。');
+  send('{{user}}用手机对'+obj+'施加身体操控，开启的部位：'+on.join('、')+'，操控已融入其意志，身体会持续按此反应。');
+  writeStat(function(sd){ sd['操控状态']=sd['操控状态']||{}; sd['操控状态'][obj]=sd['操控状态'][obj]||{}; on.forEach(function(p){ sd['操控状态'][obj][p]=true; }); });
 }
 function doAct(){
   var n=document.getElementById('aname').value.trim();
   var t=document.getElementById('atime').value.trim();
   if(!n){ alert('请填写活动名称'); return; }
   send('{{user}}用手机开启了校园活动：「'+n+'」时间地点「'+(t||'未定')+'」，以校园广播名义全校通知。');
+  writeStat(function(sd){ sd['活动']=sd['活动']||{}; sd['活动'][n]={时间:t||'未定',主办人:'{{user}}'}; });
 }
 function doList(){
   send('{{user}}在手机上查看名单/状态：请列出当前已认识、已入册的女生名单，以及她们各自当前的大致状态。');
