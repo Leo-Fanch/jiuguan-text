@@ -63,12 +63,9 @@ body{font-family:"Microsoft YaHei",sans-serif;background:#fff;color:#333;}
   <button class="go" onclick="doList()">查看名单 / 状态</button>
 </div>
 
-<div class="hint">发布内容均为樊麒的幕后杰作，剧情中请描写他得意的样子</div>
+<div class="hint">发布的内容即来自圣樱控制台，后续可在剧情里自然展开</div>
 
 <script>
-var UNF = '';
-var RAW = 'https://raw.githubusercontent.com/Leo-Fanch/jiuguan-text/main/index.html?v=13';
-
 function apiOk(){ return typeof createChatMessages==='function' && typeof triggerSlash==='function'; }
 
 function send(txt){
@@ -86,36 +83,36 @@ function closePanels(){ document.querySelectorAll('.panel').forEach(function(p){
 function toggle(p){ var el=document.getElementById(p); if(el.classList.contains('open')){el.classList.remove('open');}else{closePanels();el.classList.add('open');} }
 document.querySelectorAll('.bar button[data-p]').forEach(function(b){ b.addEventListener('click',function(){ toggle('p-'+b.getAttribute('data-p')); }); });
 
+/* 中性措辞：只陈述"发布了什么/如何生效"，不硬塞情绪，剧情交给AI自然发展 */
 function doRule(){
   var n=document.getElementById('rname').value.trim();
   var c=document.getElementById('rcontent').value.trim();
   if(!n||!c){ alert('请填写校规名称和内容'); return; }
-  send('🎃（樊麒在圣樱控制台上发布了一条校规）校规标题：'+n+'｜校规内容：'+c+'。这条校规现已通过校董会名义全校生效，请描写校规开始执行、以及樊麒得意地观察过程的剧情。');
+  send('（樊麒在圣樱控制台上发布了一条校规）校规标题：'+n+'｜校规内容：'+c+'。这条校规现已以校董会名义全校生效，校园公告、广播、学生手册同步更新。');
 }
 function doPriv(){
   var t=document.getElementById('ptarget').value.trim();
   var c=document.getElementById('pcontent').value.trim();
   if(!t||!c){ alert('请填写对象和内容'); return; }
-  send('🎃（樊麒给'+t+'的手机私发了一条消息）内容：'+c+'。只有'+t+'一个人收到，其他人不知情。请描写'+t+'收到消息、以及樊麒在暗处满意的剧情。');
+  send('（樊麒给'+t+'的手机私发了一条消息）内容：'+c+'。这条消息只有'+t+'一个人收到，其他人对此毫不知情。');
 }
 function doCtrl(){
-  var t=document.getElementById('ptarget')||null;
   var obj=document.getElementById('ctarget').value.trim();
   if(!obj){ alert('请填写操控对象'); return; }
   var names=['脸红','喘气','腿软','失神','敏感'];
   var on=[];
   for(var i=0;i<5;i++){ var cb=document.getElementById('c'+(i+1)); if(cb&&cb.checked){ on.push(names[i]); } }
   if(on.length===0){ alert('请至少勾选一个效果'); return; }
-  send('🎃（樊麒正在用校规管理APP操控'+obj+'的身体状态）对该目标生效的效果：'+on.join('、')+'。请描写'+obj+'的身体开始出现这些反应、以及樊麒在旁得意握有掌控权的剧情。');
+  send('（樊麒通过圣樱控制台，对'+obj+'施加了身体状态操控）生效效果：'+on.join('、')+'。');
 }
 function doAct(){
   var n=document.getElementById('aname').value.trim();
   var t=document.getElementById('atime').value.trim();
   if(!n){ alert('请填写活动名称'); return; }
-  send('🎃（樊麒在圣樱控制台上开启了一个校园活动）活动：'+n+'｜时间地点：'+(t||'未定')+'。已通过校园广播全校通知。请描写活动宣传/开始安排、以及樊麒得意的剧情。');
+  send('（樊麒在圣樱控制台上开启了一个校园活动）活动：'+n+'｜时间地点：'+(t||'未定')+'。已通过校园广播全校通知。');
 }
 function doList(){
-  send('🎃（樊麒打开圣樱控制台查看名单/状态）请以控制台的视角，列出当前已认识/已入册的女生名单和她们的大致状态。');
+  send('（樊麒打开圣樱控制台查看名单/状态）请以控制台的视角，列出当前已认识、已入册的女生名单，以及她们各自当前的大致状态。');
 }
 </script>
 </body>
