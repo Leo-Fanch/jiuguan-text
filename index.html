@@ -11,6 +11,8 @@ body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backgr
 .logo{font-size:14px;font-weight:800;color:#d65a7a}
 .btn{flex:1;min-width:52px;padding:10px 3px;border:none;border-radius:9px;background:linear-gradient(135deg,#fbe0e9,#f090ad);color:#fff;font-weight:bold;font-size:14px;cursor:pointer}
 .btn:active{transform:scale(.97)}
+.mode{display:flex;align-items:center;gap:4px;font-size:12px;color:#b04766;background:#fff;border:1px solid #f2d6de;border-radius:8px;padding:4px 7px;cursor:pointer;flex:none}
+.mode input{width:auto;accent-color:#d65a7a}
 .panel{background:#fff;border-radius:12px;padding:12px;margin-bottom:10px;box-shadow:0 2px 10px rgba(214,90,122,.08)}
 label{display:block;font-size:12px;color:#99808a;margin:8px 0 4px}
 input,textarea{width:100%;padding:9px;border:1px solid #f2d6de;border-radius:9px;font-size:14px;outline:none;background:#fffdfe}
@@ -37,6 +39,7 @@ h3{font-size:15px;color:#d65a7a;margin-bottom:10px}
   <button class="btn" onclick="show('ctl')">操控</button>
   <button class="btn" onclick="show('act')">活动</button>
   <button class="btn" onclick="doList()">名单</button>
+  <label class="mode"><input type="checkbox" id="toInput">先填输入框</label>
 </div>
 
 <div id="rule" class="panel" style="display:none">
@@ -78,20 +81,23 @@ function show(id){
   ['rule','priv','ctl','act'].forEach(function(x){document.getElementById(x).style.display='none';});
   if(cur!=='block'){document.getElementById(id).style.display='block';}
 }
-// 把操作指令作为一条系统消息插入对话（AI 读对话=必读必执行）
+// 勾选"先填输入框"→填进输入框可编辑；否则一键直发并触发AI
 function send(txt){
-  if(typeof createChatMessages!=='function'){alert('tavern-helper 未就绪');return false;}
-  createChatMessages([{role:'system', name:'', message:txt, is_hidden:false}], {refresh:'all'});
+  var toI=document.getElementById('toInput').checked;
+  if(toI){
+    if(typeof triggerSlash!=='function'){alert('tavern-helper 未就绪');return false;}
+    triggerSlash('/setinput '+txt); alert('已填入输入框，可编辑后发送');
+    return true;
+  }
+  if(typeof createChatMessages!=='function'||typeof triggerSlash!=='function'){alert('tavern-helper 未就绪');return false;}
+  createChatMessages([{role:'user', name:'樊麒', message:txt}]).then(function(){ triggerSlash('/trigger'); });
   return true;
 }
-function doRule(){var n=(document.getElementById('rName').value||'').trim();var c=(document.getElementById('rContent').value||'').trim();if(!c){alert('填内容');return;}send('📜 校规发布（广播全校）\n规则名：【'+n+'】\n内容：【'+c+'】\n请发布为正式校规，立即全校生效，全校知晓并遵守。')&&alert('已发布广播校规');}
-function doPriv(){var t=(document.getElementById('pTarget').value||'').trim();var n=(document.getElementById('pName').value||'').trim();var c=(document.getElementById('pContent').value||'').trim();if(!t||!c){alert('填对象和内容');return;}send('📮 校规私发（仅【'+t+'】）\n规则名：【'+n+'】\n内容：【'+c+'】\n仅推送到'+t+'手机，其他学生不知情，只对该对象生效。')&&alert('已私发给'+t);}
-function doCtl(){var t=(document.getElementById('cTarget').value||'').trim();if(!t){alert('填对象');return;}var parts=[];parts.push('阴道'+(st[1]?'开':'关'));parts.push('阴蒂'+(st[2]?'开':'关'));parts.push('阴唇'+(st[3]?'开':'关'));parts.push('膀胱'+(st[4]?'开':'关'));parts.push('乳头'+(st[5]?'开':'关'));send('🎛 操控状态更新（对象【'+t+'】）\n'+parts.join('，')+'\n请根据此持续描写'+t+'的身体反应。')&&alert('已写入'+t+'操控状态');}
-function doAct(){var n=(document.getElementById('aName').value||'').trim();if(!n){alert('填活动名');return;}var ti=(document.getElementById('aTime').value||'').trim();var p=(document.getElementById('aPlace').value||'').trim();var h=document.getElementById('aHost').checked;send('🎪 校园活动\n名称：【'+n+'】 时间：【'+ti+'】 地点：【'+p+'】'+(h?' 主办：樊麒（玩家为主导，节奏由玩家掌控）':'')+'\n请广播全校并展开活动。')&&alert('已发起活动'+n);}
-function doList(){
-  var out='名单由 AI 维护，可发消息让 AI 汇报。';
-  document.getElementById('out').textContent=out;
-}
+function doRule(){var n=(document.getElementById('rName').value||'').trim();var c=(document.getElementById('rContent').value||'').trim();if(!c){alert('填内容');return;}send('📜 校规发布（广播全校）\n规则名：【'+n+'】\n内容：【'+c+'】\n请发布为正式校规，立即全校生效，全校知晓并遵守。');}
+function doPriv(){var t=(document.getElementById('pTarget').value||'').trim();var n=(document.getElementById('pName').value||'').trim();var c=(document.getElementById('pContent').value||'').trim();if(!t||!c){alert('填对象和内容');return;}send('📮 校规私发（仅【'+t+'】）\n规则名：【'+n+'】\n内容：【'+c+'】\n仅推送到'+t+'手机，其他学生不知情，只对该对象生效。');}
+function doCtl(){var t=(document.getElementById('cTarget').value||'').trim();if(!t){alert('填对象');return;}var parts=[];parts.push('阴道'+(st[1]?'开':'关'));parts.push('阴蒂'+(st[2]?'开':'关'));parts.push('阴唇'+(st[3]?'开':'关'));parts.push('膀胱'+(st[4]?'开':'关'));parts.push('乳头'+(st[5]?'开':'关'));send('🎛 操控状态更新（对象【'+t+'】）\n'+parts.join('，')+'\n请据此持续描写'+t+'的身体反应。');}
+function doAct(){var n=(document.getElementById('aName').value||'').trim();if(!n){alert('填活动名');return;}var ti=(document.getElementById('aTime').value||'').trim();var p=(document.getElementById('aPlace').value||'').trim();var h=document.getElementById('aHost').checked;send('🎪 校园活动\n名称：【'+n+'】 时间：【'+ti+'】 地点：【'+p+'】'+(h?' 主办：樊麒（玩家为主导，节奏由玩家掌控）':'')+'\n请广播全校并展开活动。');}
+function doList(){ send('🗂 请汇报当前已登场女生名单（名字+身份）。'); }
 </script>
 </body>
 </html>
