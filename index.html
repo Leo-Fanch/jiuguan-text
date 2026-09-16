@@ -14,6 +14,8 @@ body{font-family:"Microsoft YaHei",sans-serif;background:#fff;color:#333;}
 .bar button.on{background:#e05a86;color:#fff;}
 .mode{display:flex;align-items:center;gap:3px;font-size:11px;color:#888;margin-left:auto;white-space:nowrap;}
 .stbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:3px 8px;font-size:11px;color:#a0526a;background:#fff7fa;border:1px solid #ffd0df;border-top:none;border-radius:0 0 8px 8px;}
+.stbar .st{color:#c9456f;font-weight:600;}
+.stbar .st-next{color:#999;font-weight:400;font-size:10px;}
 .stbar .paused{background:#fff0f0;color:#cc3333;font-weight:700;border:1px solid #ffb3b3;border-radius:4px;padding:0 5px;}
 .stbar .pbtn{border:1px solid #ffb3c9;background:#fff;color:#c9456f;border-radius:4px;padding:0 6px;font-size:11px;cursor:pointer;}
 .stbar .pbtn:hover{background:#ffe0ec;}
@@ -75,12 +77,11 @@ td{padding:3px 5px;border-bottom:1px solid #ffeef5;color:#555;vertical-align:top
 </div>
 
 <div class="stbar" id="stbar">
-  <span>📅 <span id="st-time">--</span></span>
-  <span>📍 <span id="st-loc">--</span></span>
-  <span>📜 <span id="st-rules">0</span></span>
-  <span id="st-pause-box" style="display:none;"><span class="paused">⏸ 时间已暂停</span></span>
-  <button class="pbtn" id="st-pause-btn">⏸ 暂停时间</button>
-  <span style="margin-left:auto;">⏭ <span id="st-next">--</span></span>
+  <span class="st">时间 <span id="st-time">--</span></span>
+  <span class="st">地点 <span id="st-loc">--</span><span class="st-next" id="st-next" style="margin-left:6px;"></span></span>
+  <span class="st">校规 <span id="st-rules">0</span> 条</span>
+  <span id="st-pause-box" style="display:none;"><span class="paused">时间已暂停</span></span>
+  <button class="pbtn" id="st-pause-btn">暂停时间</button>
 </div>
 
 <!-- ============ 校规 ============ -->
@@ -134,7 +135,7 @@ td{padding:3px 5px;border-bottom:1px solid #ffeef5;color:#555;vertical-align:top
     <div class="ctrl-item" data-part="膀胱"><input type="checkbox" id="c4" onchange="ctrlTick()"><span>膀胱·漏尿</span><select id="lv4" class="hide-lv"><option value="1">1偶漏</option><option value="2" selected>2小股</option><option value="3">3频繁</option><option value="4">4濒临</option><option value="5">5失禁</option></select></div>
     <div class="ctrl-item" data-part="乳头"><input type="checkbox" id="c5" onchange="ctrlTick()"><span>乳头·摩擦即感</span><select id="lv5" class="hide-lv"><option value="1">1微硬</option><option value="2" selected>2顶起</option><option value="3">3敏感</option><option value="4">4酥麻</option><option value="5">5过载</option></select></div>
   </div>
-  <div class="hint">勾选部位、各自设强度（1-5档），每部位可不同。应用后对方毫无所觉、身体持续反应。</div>
+  <div class="hint">勾选部位→各自设强度→应用。</div>
   <div class="sublist" id="c-list"></div>
 </div>
 
@@ -167,9 +168,9 @@ td{padding:3px 5px;border-bottom:1px solid #ffeef5;color:#555;vertical-align:top
       <option value="name">姓名</option>
       <option value="credit">学分 ↓</option>
     </select>
-    <span style="font-size:11px;color:#bbb;">（认识新角色后 AI 自动建档）</span>
+    <span style="font-size:11px;color:#bbb;"></span>
   </div>
-  <div id="list-body"><div class="empty" style="font-size:11px;color:#bbb;padding:6px 0;">角色档案读取中…</div></div>
+  <div id="list-body"><div class="empty" style="font-size:11px;color:#bbb;padding:6px 0;"></div></div>
 </div>
 
 <!-- ============ 现行（生效中的校规/活动） ============ -->
@@ -179,7 +180,7 @@ td{padding:3px 5px;border-bottom:1px solid #ffeef5;color:#555;vertical-align:top
 
 <!-- ============ 建议 ============ -->
 <div class="panel" id="p-sug">
-  <div class="opt" id="sug-list"><div class="empty" style="font-size:11px;color:#bbb;flex:1;">暂无建议选项</div></div>
+  <div class="opt" id="sug-list"></div>
 </div>
 
 <!-- ============ 玩法 ============ -->
@@ -208,17 +209,28 @@ td{padding:3px 5px;border-bottom:1px solid #ffeef5;color:#555;vertical-align:top
 function autoGrow(el){ el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }
 function writeStat(patchFn){
   try{
-    if(typeof updateVariablesWith==='function'){
-      updateVariablesWith(function(v){ v=v||{}; v.stat_data=v.stat_data||{}; patchFn(v.stat_data); return v; }, {type:'message',message_id:'latest'});
+    var fn = getVarsFn('updateVariablesWith', '_updateVariablesWith');
+    if (fn){
+      fn(function(v){ v=v||{}; v.stat_data=v.stat_data||{}; patchFn(v.stat_data); return v; }, {type:'message',message_id:'latest'});
     }
   }catch(e){}
 }
+function getVarsFn(shortName, longName){
+  try{
+    var w = window._ || {};
+    if (typeof w[shortName] === 'function') return w[shortName].bind(window);
+    if (typeof w[longName] === 'function') return w[longName].bind(window);
+  }catch(e){}
+  try{ if (typeof window[shortName] === 'function') return window[shortName].bind(window); }catch(e){}
+  return null;
+}
 function readStat(cb){
   try{
-    if(typeof getVariables==='function'){
-      getVariables({type:'message', message_id:'latest'}).then(function(vs){
-        var sd=(vs&&vs[0]&&vs[0].stat_data)||{};
-        cb(sd);
+    var fn = getVarsFn('getVariables', '_getVariables');
+    if (fn){
+      fn({type:'message', message_id:'latest'}).then(function(vs){
+        var sd = (vs && vs.stat_data) ? vs.stat_data : ((vs && vs[0] && vs[0].stat_data) ? vs[0].stat_data : {});
+        cb(sd || {});
       }).catch(function(){ cb({}); });
     } else { cb({}); }
   }catch(e){ cb({}); }
@@ -238,11 +250,18 @@ function appendToInput(txt){
   triggerSlash('/setinput '+full);
   return true;
 }
+function thFn(name){
+  try{ if(typeof window[name]==='function') return window[name]; }catch(e){}
+  try{ if(window._ && typeof window._[name]==='function') return window._[name].bind(window); }catch(e){}
+  return null;
+}
 function send(txt){
+  var ccm=thFn('createChatMessages'), ts=thFn('triggerSlash');
+  if(!ccm||!ts){ alert('酒馆助手未就绪'); return false; }
   var toI=document.getElementById('toInput')&&document.getElementById('toInput').checked;
-  if(typeof createChatMessages!=='function'||typeof triggerSlash!=='function'){ alert('酒馆助手未就绪'); return false; }
   if(toI){ return appendToInput(txt); }
-  createChatMessages([{role:'user',name:'樊麒',message:txt}]).then(function(){ triggerSlash('/trigger'); });
+  var nm = (typeof window.playerName==='string' && window.playerName) ? window.playerName : '樊麒';
+  ccm([{role:'user',name:nm,message:txt}]).then(function(){ ts('/trigger'); });
   return true;
 }
 function closePanels(){ document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');}); }
@@ -317,7 +336,7 @@ function renderRules(){
     var r=(sd['校规']||{});
     var keys=Object.keys(r).filter(function(k){return k!=='违规记录';});
     var list=document.getElementById('r-list');
-    if(keys.length===0){ list.innerHTML='<div class="empty">暂无发布记录。发布后此处列出全部（含已解除），生效状态见「现行」。</div>'; }
+    if(keys.length===0){ list.innerHTML='<div class="empty"></div>'; }
     else{
       var h='';
       keys.forEach(function(k){
@@ -351,7 +370,7 @@ function renderPriv(){
   readStat(function(sd){
     var arr=(sd['私发记录']||[]);
     var list=document.getElementById('p-list');
-    if(arr.length===0){ list.innerHTML='<div class="empty">暂无私发记录</div>'; }
+    if(arr.length===0){ list.innerHTML=''; }
     else{
       var h='';
       arr.slice(-8).reverse().forEach(function(it){
@@ -411,7 +430,7 @@ function renderCtrl(){
       return ['阴道','阴蒂','阴唇','膀胱','乳头'].some(function(p){ return o[p] && o[p]!==false && o[p]!==0; });
     });
     var list=document.getElementById('c-list');
-    if(keys.length===0){ list.innerHTML='<div class="empty">当前无生效操控。</div>'; }
+    if(keys.length===0){ list.innerHTML=''; }
     else{
       var h='';
       keys.forEach(function(k){
@@ -453,7 +472,7 @@ function renderAct(){
     var a=(sd['活动']||{});
     var keys=Object.keys(a);
     var list=document.getElementById('a-list');
-    if(keys.length===0){ list.innerHTML='<div class="empty">暂无开启的活动。开启后此处列出全部（生效状态见「现行」）。</div>'; }
+    if(keys.length===0){ list.innerHTML='<div class="empty"></div>'; }
     else{
       var h='';
       keys.forEach(function(k){
@@ -487,7 +506,7 @@ function renderLive(){
     var aKeys=Object.keys(acts).filter(function(k){ return inEffectByTime(acts[k]); });
     var h='';
     if(rKeys.length===0 && aKeys.length===0){
-      h='<div class="empty">当前没有生效中的校规或活动。</div>';
+      h='<div class="empty"></div>';
     } else {
       if(rKeys.length>0){
         h+='<div style="font-size:11px;color:#a0526a;font-weight:600;margin:2px 0;">📜 生效中校规（'+rKeys.length+'）</div>';
@@ -526,7 +545,7 @@ function renderList(){
     var body=document.getElementById('list-body');
     var roles=(sd['角色']||{});
     var keys=Object.keys(roles);
-    if(keys.length===0){ body.innerHTML='<div class="empty">还没有录入的角色档案。认识新角色后这里就会显示。</div>'; return; }
+    if(keys.length===0){ body.innerHTML='<div class="empty"></div>'; return; }
     var order=document.getElementById('lorder').value;
     keys.sort(function(a,b){
       if(order==='fav'){ return ((roles[b].好感度)||0)-((roles[a].好感度)||0); }
@@ -655,7 +674,12 @@ function renderStatus(sd){
   var rules=Object.keys(sd['校规']||{}).filter(function(k){return k!=='违规记录' && sd['校规'][k] && sd['校规'][k]['生效']!==false;}).length;
   document.getElementById('st-rules').textContent=rules;
   var sc=schedInfo(parseInt(hh,10),parseInt(mi,10));
-  document.getElementById('st-next').textContent=sc.now+'｜'+sc.nxt;
+  var nextEl=document.getElementById('st-next');
+  if(nextEl){
+    var hasTime=(t['小时']!==undefined && t['分钟']!==undefined);
+    if(!hasTime){ nextEl.textContent='（等待剧情时间推进）'; }
+    else { nextEl.textContent='下一段 '+sc.nxt; }
+  }
   var paused=!!(t['暂停']);
   document.getElementById('st-pause-box').style.display=paused?'inline':'none';
   document.getElementById('st-pause-btn').textContent=paused?'▶️ 解除暂停':'⏸ 暂停时间';
@@ -688,9 +712,9 @@ function renderSug(){
     if(msgs&&msgs[0]&&msgs[0].message){ txt=msgs[0].message; }
     var m=txt.match(/<options>([\s\S]*?)<\/options>/);
     var box=document.getElementById('sug-list');
-    if(!m||!m[1]){ box.innerHTML='<div class="empty" style="font-size:11px;color:#bbb;flex:1;">暂无建议选项</div>'; return; }
+    if(!m||!m[1]){ box.innerHTML=''; return; }
     var opts=m[1].split('|').map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
-    if(opts.length===0){ box.innerHTML='<div class="empty" style="font-size:11px;color:#bbb;flex:1;">暂无建议选项</div>'; return; }
+    if(opts.length===0){ box.innerHTML=''; return; }
     var h='';
     opts.forEach(function(o){
       h+='<button onclick="sendSug(\''+o.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'+esc(o)+'</button>';
