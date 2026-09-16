@@ -228,10 +228,22 @@ function readStat(cb){
   try{
     var fn = getVarsFn('getVariables', '_getVariables');
     if (fn){
-      fn({type:'message', message_id:'latest'}).then(function(vs){
-        var sd = (vs && vs.stat_data) ? vs.stat_data : ((vs && vs[0] && vs[0].stat_data) ? vs[0].stat_data : {});
+      var done = false;
+      var finish = function(vs){
+        if (done) return; done = true;
+        var sd = (vs && vs.stat_data) ? vs.stat_data
+               : ((vs && vs[0] && vs[0].stat_data) ? vs[0].stat_data
+               : ((vs && vs.variables && vs.variables.stat_data) ? vs.variables.stat_data : {}));
         cb(sd || {});
-      }).catch(function(){ cb({}); });
+      };
+      try {
+        var ret = fn({type:'message', message_id:'latest'});
+        if (ret && typeof ret.then === 'function') {
+          ret.then(finish).catch(function(){ if(!done){done=true; cb({});} });
+        } else {
+          finish(ret);
+        }
+      } catch(err) { if(!done){done=true; cb({});} }
     } else { cb({}); }
   }catch(e){ cb({}); }
 }
