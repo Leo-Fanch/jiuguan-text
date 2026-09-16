@@ -272,8 +272,7 @@ function send(txt){
   if(!ccm||!ts){ alert('酒馆助手未就绪'); return false; }
   var toI=document.getElementById('toInput')&&document.getElementById('toInput').checked;
   if(toI){ return appendToInput(txt); }
-  var nm = (typeof window.playerName==='string' && window.playerName) ? window.playerName : '樊麒';
-  ccm([{role:'user',name:nm,message:txt}]).then(function(){ ts('/trigger'); });
+  ccm([{role:'user',name:'{{user}}',message:txt}]).then(function(){ ts('/trigger'); });
   return true;
 }
 function closePanels(){ document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');}); }
@@ -676,7 +675,11 @@ function defaultTimeInputs(sd){
   });
 }
 function renderStatus(sd){
-  sd=sd||{};
+  // 无参调用（初始化/定时器/暂停恢复）时，自己先读 stat_data 再渲染，禁止用空对象覆盖
+  if(!sd){
+    readStat(function(s){ renderStatus(s); });
+    return;
+  }
   var t=sd['时间']||{};
   var hh=('0'+(t['小时']!==undefined?t['小时']:0)).slice(-2);
   var mi=('0'+(t['分钟']!==undefined?t['分钟']:0)).slice(-2);
@@ -735,11 +738,11 @@ function renderSug(){
   }catch(e){}
 }
 function sendSug(o){
+  var ccm=thFn('createChatMessages'), ts=thFn('triggerSlash');
+  if(!ccm||!ts) return;
   var toI=document.getElementById('toInput')&&document.getElementById('toInput').checked;
   if(toI){ appendToInput(o); return; }
-  if(typeof createChatMessages==='function'&&typeof triggerSlash==='function'){
-    createChatMessages([{role:'user',name:'樊麒',message:o}]).then(function(){ triggerSlash('/trigger'); });
-  }
+  ccm([{role:'user',name:'{{user}}',message:o}]).then(function(){ ts('/trigger'); });
 }
 
 /* ================= 初始化 ================= */
