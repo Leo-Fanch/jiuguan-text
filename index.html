@@ -3,25 +3,60 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>圣樱控制台</title>
+<title>圣樱控制台 v23</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:"Microsoft YaHei",sans-serif;background:#fff;color:#333;}
-.bar{display:flex;align-items:center;gap:6px;padding:6px 8px;background:linear-gradient(90deg,#ffeef5,#fff5ee);border:1px solid #ffc1d4;border-radius:8px;flex-wrap:wrap;}
-.logo{font-weight:700;color:#e05a86;font-size:13px;margin-right:4px;}
-.bar button{border:1px solid #ffb3c9;background:#fff;color:#c9456f;border-radius:6px;padding:4px 9px;font-size:12px;cursor:pointer;}
+.bar{display:flex;align-items:center;gap:5px;padding:5px 7px;background:linear-gradient(90deg,#ffeef5,#fff5ee);border:1px solid #ffc1d4;border-radius:8px;flex-wrap:wrap;}
+.logo{font-weight:700;color:#e05a86;font-size:13px;margin-right:2px;}
+.bar button{border:1px solid #ffb3c9;background:#fff;color:#c9456f;border-radius:6px;padding:3px 9px;font-size:12px;cursor:pointer;white-space:nowrap;}
 .bar button:hover{background:#ffe0ec;}
-.mode{display:flex;align-items:center;gap:3px;font-size:11px;color:#888;margin-left:auto;}
-.panel{display:none;border:1px solid #ffc1d4;border-top:none;border-radius:0 0 8px 8px;padding:10px;background:#fffafc;}
+.bar button.on{background:#e05a86;color:#fff;}
+.mode{display:flex;align-items:center;gap:3px;font-size:11px;color:#888;margin-left:auto;white-space:nowrap;}
+.stbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:3px 8px;font-size:11px;color:#a0526a;background:#fff7fa;border:1px solid #ffd0df;border-top:none;border-radius:0 0 8px 8px;}
+.stbar .paused{background:#fff0f0;color:#cc3333;font-weight:700;border:1px solid #ffb3b3;border-radius:4px;padding:0 5px;}
+.stbar .pbtn{border:1px solid #ffb3c9;background:#fff;color:#c9456f;border-radius:4px;padding:0 6px;font-size:11px;cursor:pointer;}
+.stbar .pbtn:hover{background:#ffe0ec;}
+.panel{display:none;border:1px solid #ffc1d4;border-top:none;border-radius:0 0 8px 8px;padding:9px;background:#fffafc;}
 .panel.open{display:block;}
-.panel label{display:block;font-size:12px;color:#555;margin:6px 0 2px;}
-.panel input,.panel select,.panel textarea{width:100%;padding:5px 7px;border:1px solid #ffc1d4;border-radius:5px;font-size:12px;background:#fff;}
-.panel textarea{resize:none;font-family:inherit;line-height:1.4;word-wrap:break-word;overflow-wrap:break-word;overflow:hidden;}
-.ctrl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0;}
-.ctrl-row span{font-size:12px;color:#444;}
-.ctrl-row input[type=checkbox]{width:auto;transform:scale(1.1);}
-.go{margin-top:9px;background:linear-gradient(90deg,#e05a86,#ff8fb0);color:#fff;border:none;border-radius:6px;padding:6px 0;width:100%;font-size:13px;font-weight:600;cursor:pointer;}
+.panel label{font-size:12px;color:#555;margin:5px 0 2px;display:block;white-space:nowrap;}
+.panel input,.panel select,.panel textarea{padding:4px 6px;border:1px solid #ffc1d4;border-radius:5px;font-size:12px;background:#fff;}
+.panel textarea{resize:none;font-family:inherit;line-height:1.35;word-wrap:break-word;overflow-wrap:break-word;overflow:hidden;}
+.frow{display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap;margin:6px 0;}
+.frow .f{display:flex;flex-direction:column;gap:2px;}
+.frow label{margin:0;}
+.frow input,.frow select,.frow textarea{width:100%;}
+.frow .grow{flex:1;min-width:140px;}
+.trow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:6px 0;}
+.trow label{margin:0;display:block;}
+.trow select{width:auto;}
+.trow input[type=datetime-local]{width:auto;font-size:11px;padding:2px 4px;}
+.hide{display:none;}
+.ctrl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;margin:6px 0;}
+.ctrl-item{border:1px solid #ffd0df;border-radius:6px;padding:5px 7px;background:#fff;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:#444;}
+.ctrl-item input[type=checkbox]{transform:scale(1.1);}
+.ctrl-item select{width:auto;font-size:11px;padding:1px 3px;margin-left:auto;}
+.hide-lv{display:none !important;}
+.go{margin:8px 0 4px;background:linear-gradient(90deg,#e05a86,#ff8fb0);color:#fff;border:none;border-radius:6px;padding:5px 0;width:100%;font-size:13px;font-weight:600;cursor:pointer;}
+.go.sm{width:auto;padding:3px 14px;font-size:12px;font-weight:400;margin:4px 6px 4px 0;}
+.sublist{margin-top:8px;border-top:1px dashed #ffc1d4;padding-top:6px;}
+.sublist .it{font-size:11px;color:#555;padding:3px 4px;border-bottom:1px dashed #ffe0ec;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.sublist .it .nm{font-weight:600;color:#c9456f;}
+.sublist .it .tag{background:#ffeef5;border:1px solid #ffd0df;border-radius:4px;padding:0 5px;font-size:10px;color:#a0526a;}
+.sublist .it .del{border:1px solid #ffb3c9;background:#fff;color:#c9456f;border-radius:4px;padding:0 6px;font-size:10px;cursor:pointer;margin-left:auto;}
+.sublist .it .del:hover{background:#ffe0ec;}
+.sublist .empty{font-size:11px;color:#bbb;padding:3px 4px;}
+table{width:100%;border-collapse:collapse;font-size:11px;margin-top:5px;}
+th{background:#ffe0ec;color:#a0526a;padding:3px 5px;text-align:left;font-weight:600;white-space:nowrap;}
+td{padding:3px 5px;border-bottom:1px solid #ffeef5;color:#555;vertical-align:top;}
+.opt{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;}
+.opt button{border:1px solid #ffb3c9;background:#fff;color:#c9456f;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;flex:1 1 20%;min-width:120px;}
+.opt button:hover{background:#ffe0ec;}
 .hint{font-size:10px;color:#bbb;margin-top:5px;text-align:center;}
+.achi{margin-top:5px;font-size:11px;color:#a0526a;}
+.achi span{display:inline-block;margin:2px 4px 2px 0;background:#ffeef5;border:1px solid #ffd0df;border-radius:4px;padding:1px 6px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media (max-width:720px){ .grid2{grid-template-columns:1fr;} .opt button{flex:1 1 45%;} }
 </style>
 </head>
 <body>
@@ -33,100 +68,666 @@ body{font-family:"Microsoft YaHei",sans-serif;background:#fff;color:#333;}
   <button data-p="ctrl">操控</button>
   <button data-p="act">活动</button>
   <button data-p="list">名单</button>
+  <button data-p="live">现行</button>
+  <button data-p="sug">建议</button>
+  <button data-p="play">玩法</button>
   <label class="mode"><input type="checkbox" id="toInput">先填输入框</label>
 </div>
 
+<div class="stbar" id="stbar">
+  <span>📅 <span id="st-time">--</span></span>
+  <span>📍 <span id="st-loc">--</span></span>
+  <span>📜 <span id="st-rules">0</span></span>
+  <span id="st-pause-box" style="display:none;"><span class="paused">⏸ 时间已暂停</span></span>
+  <button class="pbtn" id="st-pause-btn">⏸ 暂停时间</button>
+  <span style="margin-left:auto;">⏭ <span id="st-next">--</span></span>
+</div>
+
+<!-- ============ 校规 ============ -->
 <div class="panel" id="p-rule">
-  <label>校规名称</label><input id="rname" placeholder="如：午休不许出教室">
-  <label>校规内容</label><textarea id="rcontent" rows="1" oninput="autoGrow(this)" placeholder="详细规则内容"></textarea>
-  <button class="go" onclick="doRule()">发布校规</button>
+  <div class="frow">
+    <div class="f" style="width:150px;"><label>校规名称</label><input id="rname" placeholder="如：午休不许出教室"></div>
+    <div class="f grow"><label>校规内容</label><textarea id="rcontent" rows="1" oninput="autoGrow(this)" placeholder="详细规则内容"></textarea></div>
+  </div>
+  <div class="trow">
+    <label>期限</label>
+    <select id="rterm" onchange="termSel('r')">
+      <option value="perm">长期 / 永久</option>
+      <option value="custom">指定起止时间</option>
+    </select>
+    <span id="r-termbox" class="hide">
+      <input type="datetime-local" id="rstart"> → <input type="datetime-local" id="rend">
+    </span>
+    <button class="go sm" onclick="doRule()">发布校规</button>
+  </div>
+  <div class="sublist" id="r-list"></div>
 </div>
 
+<!-- ============ 私发 ============ -->
 <div class="panel" id="p-priv">
-  <label>发给谁</label><input id="ptarget" placeholder="如：苏小桃">
-  <label>私发内容</label><textarea id="pcontent" rows="1" oninput="autoGrow(this)" placeholder="只有对方手机收到"></textarea>
-  <button class="go" onclick="doPriv()">私发</button>
+  <div class="frow">
+    <div class="f" style="width:120px;"><label>发给谁</label><input id="ptarget" placeholder="如：苏小桃"></div>
+    <div class="f grow"><label>私发内容</label><textarea id="pcontent" rows="1" oninput="autoGrow(this)" placeholder="只有对方手机收到"></textarea></div>
+  </div>
+  <div class="trow">
+    <label>送达</label>
+    <select id="pterm">
+      <option value="now">立即</option>
+      <option value="later">指定时间</option>
+    </select>
+    <span id="p-termbox" class="hide"><input type="datetime-local" id="ptime"></span>
+    <button class="go sm" onclick="doPriv()">私发</button>
+  </div>
+  <div class="sublist" id="p-list"></div>
 </div>
 
+<!-- ============ 操控 ============ -->
 <div class="panel" id="p-ctrl">
-  <label>操控对象</label><input id="ctarget" placeholder="如：苏小桃">
-  <div class="ctrl-row"><span>阴道·流水</span><input type="checkbox" id="c1"><span>阴蒂·快感</span><input type="checkbox" id="c2"><span>阴唇·瘙痒</span><input type="checkbox" id="c3"><span>膀胱·漏尿</span><input type="checkbox" id="c4"><span>乳头·摩擦即快感</span><input type="checkbox" id="c5"></div>
-  <button class="go" onclick="doCtrl()">应用操控</button>
+  <div class="frow">
+    <div class="f" style="width:140px;"><label>操控对象</label><input id="ctarget" placeholder="如：苏小桃"></div>
+    <button class="go sm" style="align-self:center;" onclick="doCtrl()">应用操控</button>
+  </div>
+  <div class="ctrl-grid" id="ctrl-grid">
+    <div class="ctrl-item" data-part="阴道"><input type="checkbox" id="c1" onchange="ctrlTick()"><span>阴道·流水</span><select id="lv1" class="hide-lv"><option value="1">1温和</option><option value="2" selected>2明显</option><option value="3">3浸透</option><option value="4">4外渗</option><option value="5">5涌出</option></select></div>
+    <div class="ctrl-item" data-part="阴蒂"><input type="checkbox" id="c2" onchange="ctrlTick()"><span>阴蒂·快感</span><select id="lv2" class="hide-lv"><option value="1">1微胀</option><option value="2" selected>2有感</option><option value="3">3泛快感</option><option value="4">4腿软</option><option value="5">5过载</option></select></div>
+    <div class="ctrl-item" data-part="阴唇"><input type="checkbox" id="c3" onchange="ctrlTick()"><span>阴唇·瘙痒</span><select id="lv3" class="hide-lv"><option value="1">1微痒</option><option value="2" selected>2发痒</option><option value="3">3难忍</option><option value="4">4坐立难安</option><option value="5">5崩溃</option></select></div>
+    <div class="ctrl-item" data-part="膀胱"><input type="checkbox" id="c4" onchange="ctrlTick()"><span>膀胱·漏尿</span><select id="lv4" class="hide-lv"><option value="1">1偶漏</option><option value="2" selected>2小股</option><option value="3">3频繁</option><option value="4">4濒临</option><option value="5">5失禁</option></select></div>
+    <div class="ctrl-item" data-part="乳头"><input type="checkbox" id="c5" onchange="ctrlTick()"><span>乳头·摩擦即感</span><select id="lv5" class="hide-lv"><option value="1">1微硬</option><option value="2" selected>2顶起</option><option value="3">3敏感</option><option value="4">4酥麻</option><option value="5">5过载</option></select></div>
+  </div>
+  <div class="hint">勾选部位、各自设强度（1-5档），每部位可不同。应用后对方毫无所觉、身体持续反应。</div>
+  <div class="sublist" id="c-list"></div>
 </div>
 
+<!-- ============ 活动 ============ -->
 <div class="panel" id="p-act">
-  <label>活动名称</label><input id="aname" placeholder="如：海边定情夏祭">
-  <label>时间 / 地点</label><input id="atime" placeholder="如：本周六下午 / 圣樱学生街">
-  <button class="go" onclick="doAct()">开启活动</button>
+  <div class="frow">
+    <div class="f" style="width:150px;"><label>活动名称</label><input id="aname" placeholder="如：海边定情夏祭"></div>
+    <div class="f grow"><label>活动内容</label><textarea id="acontent" rows="1" oninput="autoGrow(this)" placeholder="活动安排、流程、规则"></textarea></div>
+  </div>
+  <div class="trow">
+    <label>时间</label>
+    <select id="aterm" onchange="termSel('a')">
+      <option value="perm">长期 / 择日定</option>
+      <option value="custom">指定起止时间</option>
+    </select>
+    <span id="a-termbox" class="hide">
+      <input type="datetime-local" id="astart"> → <input type="datetime-local" id="aend">
+    </span>
+    <button class="go sm" onclick="doAct()">开启活动</button>
+  </div>
+  <div class="sublist" id="a-list"></div>
 </div>
 
+<!-- ============ 名单 ============ -->
 <div class="panel" id="p-list">
-  <button class="go" onclick="doList()">查看名单 / 状态</button>
+  <div class="trow">
+    <label>排序</label>
+    <select id="lorder" onchange="renderList()">
+      <option value="fav">好感度 ↓</option>
+      <option value="name">姓名</option>
+      <option value="credit">学分 ↓</option>
+    </select>
+    <span style="font-size:11px;color:#bbb;">（认识新角色后 AI 自动建档）</span>
+  </div>
+  <div id="list-body"><div class="empty" style="font-size:11px;color:#bbb;padding:6px 0;">角色档案读取中…</div></div>
 </div>
 
-<div class="hint">发布的内容即来自圣樱控制台，后续可在剧情里自然展开</div>
+<!-- ============ 现行（生效中的校规/活动） ============ -->
+<div class="panel" id="p-live">
+  <div class="sublist" style="border-top:none;padding-top:0;" id="live-body"></div>
+</div>
+
+<!-- ============ 建议 ============ -->
+<div class="panel" id="p-sug">
+  <div class="opt" id="sug-list"><div class="empty" style="font-size:11px;color:#bbb;flex:1;">暂无建议选项</div></div>
+</div>
+
+<!-- ============ 玩法 ============ -->
+<div class="panel" id="p-play">
+  <div class="grid2">
+    <div>
+      <label>🎲 随机事件</label>
+      <button class="go sm" onclick="doEvent()">掷骰子 · 一件校园里正在发生的事</button>
+    </div>
+    <div>
+      <label>📹 监控回放</label>
+      <div class="trow" style="margin:2px 0;">
+        <input id="camLoc" placeholder="地点" style="width:120px;">
+        <input id="camTime" placeholder="时间(留空=当前)" style="width:130px;">
+        <button class="go sm" onclick="doCam()">调取</button>
+      </div>
+    </div>
+  </div>
+  <div class="achi" id="achi"></div>
+</div>
+
+<div class="hint">发布的内容统一以国外校董事会名义下达，全校师生不知情、校长也无权干涉。</div>
 
 <script>
+/* ================= 工具 ================= */
 function autoGrow(el){ el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }
 function writeStat(patchFn){
   try{
     if(typeof updateVariablesWith==='function'){
-      updateVariablesWith(function(v){ v.stat_data=v.stat_data||{}; patchFn(v.stat_data); return v; }, {type:'message',message_id:'latest'});
+      updateVariablesWith(function(v){ v=v||{}; v.stat_data=v.stat_data||{}; patchFn(v.stat_data); return v; }, {type:'message',message_id:'latest'});
     }
   }catch(e){}
 }
-function apiOk(){ return typeof createChatMessages==='function' && typeof triggerSlash==='function'; }
-
+function readStat(cb){
+  try{
+    if(typeof getVariables==='function'){
+      getVariables({type:'message', message_id:'latest'}).then(function(vs){
+        var sd=(vs&&vs[0]&&vs[0].stat_data)||{};
+        cb(sd);
+      }).catch(function(){ cb({}); });
+    } else { cb({}); }
+  }catch(e){ cb({}); }
+}
+function readInputBox(){
+  try{
+    var w=window.parent;
+    if(w&&w.$){ return w.$('#send_textarea').val()||''; }
+    if(w&&w.document){ var t=w.document.getElementById('send_textarea'); if(t){return t.value||'';} }
+  }catch(e){}
+  return '';
+}
+function appendToInput(txt){
+  if(typeof triggerSlash!=='function') return false;
+  var cur=readInputBox();
+  var full=cur? (cur.replace(/\s+$/,'')+'\n'+txt) : txt;
+  triggerSlash('/setinput '+full);
+  return true;
+}
 function send(txt){
   var toI=document.getElementById('toInput')&&document.getElementById('toInput').checked;
-  if(!apiOk()){ alert('酒馆助手未就绪'); return false; }
-  if(toI){
-    triggerSlash('/setinput '+txt);
-    return true;
-  }
+  if(typeof createChatMessages!=='function'||typeof triggerSlash!=='function'){ alert('酒馆助手未就绪'); return false; }
+  if(toI){ return appendToInput(txt); }
   createChatMessages([{role:'user',name:'樊麒',message:txt}]).then(function(){ triggerSlash('/trigger'); });
   return true;
 }
-
 function closePanels(){ document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');}); }
 function toggle(p){ var el=document.getElementById(p); if(el.classList.contains('open')){el.classList.remove('open');}else{closePanels();el.classList.add('open');} }
-document.querySelectorAll('.bar button[data-p]').forEach(function(b){ b.addEventListener('click',function(){ toggle('p-'+b.getAttribute('data-p')); }); });
+document.querySelectorAll('.bar button[data-p]').forEach(function(b){ b.addEventListener('click',function(){
+  var p='p-'+b.getAttribute('data-p');
+  toggle(p);
+  document.querySelectorAll('.bar button[data-p]').forEach(function(x){x.classList.remove('on');});
+  if(document.getElementById(p).classList.contains('open')) b.classList.add('on');
+}); });
 
+/* ================= 期限选择 ================= */
+function termSel(kind){
+  var sid=kind==='r' ? 'rterm' : 'aterm';
+  var box=kind==='r' ? 'r-termbox' : 'a-termbox';
+  var v=document.getElementById(sid).value;
+  document.getElementById(box).classList.toggle('hide', v!=='custom');
+}
+document.addEventListener('change', function(e){
+  if(e.target&&e.target.id==='pterm'){
+    document.getElementById('p-termbox').classList.toggle('hide', e.target.value!=='later');
+  }
+});
+
+/* ================= 操控：勾选才显强度 ================= */
+function ctrlTick(){
+  var parts=[['c1','lv1'],['c2','lv2'],['c3','lv3'],['c4','lv4'],['c5','lv5']];
+  parts.forEach(function(pair){
+    var cb=document.getElementById(pair[0]);
+    var lv=document.getElementById(pair[1]);
+    var item=cb.closest('.ctrl-item');
+    var on=cb.checked;
+    lv.classList.toggle('hide-lv', !on);
+    item.classList.toggle('off', !on);
+  });
+}
+function hideLvInit(){
+  document.querySelectorAll('.hide-lv').forEach(function(el){ el.classList.add('hide-lv'); });
+}
+
+/* ================= 校规 ================= */
 function doRule(){
   var n=document.getElementById('rname').value.trim();
   var c=document.getElementById('rcontent').value.trim();
   if(!n||!c){ alert('请填写校规名称和内容'); return; }
-  send('{{user}}用自己的手机发布了校规：「'+n+'」规则内容「'+c+'」，以校董会名义全校即刻生效，师生的意志与行为也一并随之改变。');
-  writeStat(function(sd){ sd['校规']=sd['校规']||{}; sd['校规'][n]={内容:c,生效:true,期限:''}; });
+  var term='长期/永久';
+  var rterm=document.getElementById('rterm').value;
+  if(rterm==='custom'){
+    var s=document.getElementById('rstart').value, e=document.getElementById('rend').value;
+    if(!s||!e){ alert('请填写起止时间，或改为长期/永久'); return; }
+    term=s+' ~ '+e;
+  }
+  send('{{user}}用手机发布了校规：「'+n+'」规则内容「'+c+'」'+(term==='长期/永久'?'':'，实施期限 '+term)+'，以国外校董事会名义直接下达、全校即刻生效，师生不知情、连校长也无权干涉，无人质疑其合理性。');
+  writeStat(function(sd){
+    sd['校规']=sd['校规']||{};
+    var old=sd['校规'][n]||{};
+    sd['校规'][n]={内容:c,生效:true,期限:term,违规记录:(old.违规记录||[])};
+  });
+  document.getElementById('rname').value='';
+  document.getElementById('rcontent').value='';
+  autoGrow(document.getElementById('rcontent'));
+  renderRules(); renderLive();
 }
+function revokeRule(name){
+  if(!confirm('解除校规「'+name+'」？')) return;
+  send('{{user}}用手机撤销了校规「'+name+'」，该校规即刻停止生效，全校恢复常态。');
+  writeStat(function(sd){ if(sd['校规']&&sd['校规'][name]){ sd['校规'][name].生效=false; } });
+  renderRules(); renderLive();
+}
+function renderRules(){
+  readStat(function(sd){
+    var r=(sd['校规']||{});
+    var keys=Object.keys(r).filter(function(k){return k!=='违规记录';});
+    var list=document.getElementById('r-list');
+    if(keys.length===0){ list.innerHTML='<div class="empty">暂无发布记录。发布后此处列出全部（含已解除），生效状态见「现行」。</div>'; }
+    else{
+      var h='';
+      keys.forEach(function(k){
+        var it=r[k]; if(!it||typeof it!=='object') return;
+        var on=it.生效!==false;
+        h+='<div class="it"><span class="nm">'+(on?'📜':'🚫')+' '+k+'</span><span>'+(it.内容||'')+'</span><span style="color:#bbb;">'+(it.期限||'')+'</span>';
+        if(on){ h+='<button class="del" onclick="revokeRule(\''+k.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">解除</button>'; }
+        h+='</div>';
+      });
+      list.innerHTML=h;
+    }
+    renderStatus(sd);
+  });
+}
+
+/* ================= 私发 ================= */
 function doPriv(){
   var t=document.getElementById('ptarget').value.trim();
   var c=document.getElementById('pcontent').value.trim();
   if(!t||!c){ alert('请填写对象和内容'); return; }
-  send('{{user}}用手机给'+t+'私发了消息：「'+c+'」。仅'+t+'一人可见，其他人不知情。');
+  var pterm=document.getElementById('pterm').value;
+  var extra=pterm==='later' ? '，送达时间 '+document.getElementById('ptime').value : '';
+  send('{{user}}用手机给'+t+'私发了消息：「'+c+'」'+extra+'。以校董会名义私密下达，'+t+'不知是你发的，只当是上面单独关照她。仅'+t+'一人可见，其他人不知情。');
   writeStat(function(sd){ sd['私发记录']=sd['私发记录']||[]; sd['私发记录'].push({对象:t,内容:c,时间:'当前剧情时刻'}); });
+  document.getElementById('ptarget').value='';
+  document.getElementById('pcontent').value='';
+  autoGrow(document.getElementById('pcontent'));
+  renderPriv();
 }
-/* 操控：按玩家设计的身体敏感部位开关，对应 stat_data['操控状态'][对象][部位]=true */
+function renderPriv(){
+  readStat(function(sd){
+    var arr=(sd['私发记录']||[]);
+    var list=document.getElementById('p-list');
+    if(arr.length===0){ list.innerHTML='<div class="empty">暂无私发记录</div>'; }
+    else{
+      var h='';
+      arr.slice(-8).reverse().forEach(function(it){
+        h+='<div class="it"><span class="nm">💌 '+it.对象+'</span><span>'+(it.内容||'')+'</span></div>';
+      });
+      list.innerHTML=h;
+    }
+  });
+}
+
+/* ================= 操控 ================= */
 function doCtrl(){
   var obj=document.getElementById('ctarget').value.trim();
   if(!obj){ alert('请填写操控对象'); return; }
-  var parts=['阴道','阴蒂','阴唇','膀胱','乳头'];
+  var parts=[['c1','lv1','阴道'],['c2','lv2','阴蒂'],['c3','lv3','阴唇'],['c4','lv4','膀胱'],['c5','lv5','乳头']];
   var on=[];
-  for(var i=0;i<5;i++){ var cb=document.getElementById('c'+(i+1)); if(cb&&cb.checked){ on.push(parts[i]); } }
+  parts.forEach(function(p){
+    var cb=document.getElementById(p[0]);
+    if(cb&&cb.checked){
+      var lv=parseInt(document.getElementById(p[1]).value,10)||2;
+      on.push(p[2]+'档'+lv);
+    }
+  });
   if(on.length===0){ alert('请至少勾选一个部位'); return; }
-  send('{{user}}用手机对'+obj+'施加身体操控，开启的部位：'+on.join('、')+'，操控已融入其意志，身体会持续按此反应。');
-  writeStat(function(sd){ sd['操控状态']=sd['操控状态']||{}; sd['操控状态'][obj]=sd['操控状态'][obj]||{}; on.forEach(function(p){ sd['操控状态'][obj][p]=true; }); });
+  send('{{user}}用手机对'+obj+'施加身体操控：'+on.join('、')+'。对方毫无所觉，身体会持续按此反应，直至玩家关闭。');
+  writeStat(function(sd){
+    sd['操控状态']=sd['操控状态']||{};
+    var o=sd['操控状态'][obj]||{};
+    // 先全部关闭，再按勾选部位设独立档位
+    ['阴道','阴蒂','阴唇','膀胱','乳头'].forEach(function(p){ o[p]=false; });
+    parts.forEach(function(p){
+      var cb=document.getElementById(p[0]);
+      if(cb&&cb.checked){
+        o[p[2]]=parseInt(document.getElementById(p[1]).value,10)||2;
+      }
+    });
+    sd['操控状态'][obj]=o;
+  });
+  renderCtrl();
+  renderAch('ctrl');
 }
+function closeCtrl(obj){
+  if(!confirm('关闭对'+obj+'的全部操控？')) return;
+  send('{{user}}用手机关闭了对'+obj+'的全部身体操控，其身体恢复正常。');
+  writeStat(function(sd){ if(sd['操控状态']&&sd['操控状态'][obj]){ sd['操控状态'][obj]={}; } });
+  renderCtrl();
+}
+function partLvName(part, lv){
+  var defs={阴道:['1隐约','2湿润','3浸透','4外渗','5涌出'],阴蒂:['1微胀','2有感','3泛快感','4腿软','5过载'],阴唇:['1微痒','2发痒','3难忍','4坐立难安','5崩溃'],膀胱:['1偶漏','2小股','3频繁','4濒临','5失禁'],乳头:['1微硬','2顶起','3敏感','4酥麻','5过载']};
+  var d=defs[part]||[]; return lv+'档'+(d[lv-1]||'');
+}
+function renderCtrl(){
+  readStat(function(sd){
+    var st=(sd['操控状态']||{});
+    var keys=Object.keys(st).filter(function(k){
+      var o=st[k]||{};
+      return ['阴道','阴蒂','阴唇','膀胱','乳头'].some(function(p){ return o[p] && o[p]!==false && o[p]!==0; });
+    });
+    var list=document.getElementById('c-list');
+    if(keys.length===0){ list.innerHTML='<div class="empty">当前无生效操控。</div>'; }
+    else{
+      var h='';
+      keys.forEach(function(k){
+        var o=st[k]||{};
+        var ps=[];
+        ['阴道','阴蒂','阴唇','膀胱','乳头'].forEach(function(p){
+          if(o[p] && o[p]!==false && o[p]!==0){ ps.push(p+partLvName(p, o[p])); }
+        });
+        h+='<div class="it"><span class="nm">⚡ '+k+'</span><span>'+ps.join('、')+'</span><button class="del" onclick="closeCtrl(\''+k.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">关闭全部</button></div>';
+      });
+      list.innerHTML=h;
+    }
+  });
+}
+
+/* ================= 活动 ================= */
 function doAct(){
   var n=document.getElementById('aname').value.trim();
-  var t=document.getElementById('atime').value.trim();
   if(!n){ alert('请填写活动名称'); return; }
-  send('{{user}}用手机开启了校园活动：「'+n+'」时间地点「'+(t||'未定')+'」，以校园广播名义全校通知。');
-  writeStat(function(sd){ sd['活动']=sd['活动']||{}; sd['活动'][n]={时间:t||'未定',主办人:'{{user}}'}; });
+  var c=document.getElementById('acontent').value.trim();
+  var term='长期/择日定';
+  var aterm=document.getElementById('aterm').value;
+  if(aterm==='custom'){
+    var s=document.getElementById('astart').value, e=document.getElementById('aend').value;
+    if(s&&e){ term=s+' ~ '+e; }
+  }
+  send('{{user}}用手机开启了校园活动：「'+n+'」'+(c?'内容「'+c+'」':'')+(term!=='长期/择日定'?'，时间 '+term:'')+'，以校董会名义通知全校，师生不知情、只当是校方安排。');
+  writeStat(function(sd){
+    sd['活动']=sd['活动']||{};
+    sd['活动'][n]={时间:term,主办人:'{{user}}',内容:c||'',开启时间:(aterm==='custom'?document.getElementById('astart').value:''),结束时间:(aterm==='custom'?document.getElementById('aend').value:'')};
+  });
+  document.getElementById('aname').value='';
+  document.getElementById('acontent').value='';
+  autoGrow(document.getElementById('acontent'));
+  renderAct(); renderLive();
 }
-function doList(){
-  send('{{user}}在手机上查看名单/状态：请列出当前已认识、已入册的女生名单，以及她们各自当前的大致状态。');
+function renderAct(){
+  readStat(function(sd){
+    var a=(sd['活动']||{});
+    var keys=Object.keys(a);
+    var list=document.getElementById('a-list');
+    if(keys.length===0){ list.innerHTML='<div class="empty">暂无开启的活动。开启后此处列出全部（生效状态见「现行」）。</div>'; }
+    else{
+      var h='';
+      keys.forEach(function(k){
+        var it=a[k]||{};
+        h+='<div class="it"><span class="nm">🎪 '+k+'</span><span>'+(it.内容||'')+'</span><span style="color:#bbb;">'+(it.时间||'')+'</span></div>';
+      });
+      list.innerHTML=h;
+    }
+  });
 }
+
+/* ================= 现行（生效中的校规/活动） ================= */
+function inEffectByTime(it){
+  if(!it) return false;
+  if(it['生效']===false) return false;
+  if(it['结束时间']){
+    var now=new Date(); // 用当前
+    var end=new Date(it['结束时间']);
+    if(!isNaN(end) && end<now) return false;
+  }
+  return true;
+}
+function renderLive(){
+  readStat(function(sd){
+    var body=document.getElementById('live-body');
+    var rules=(sd['校规']||{});
+    var acts=(sd['活动']||{});
+    var rKeys=Object.keys(rules).filter(function(k){
+      return k!=='违规记录' && rules[k] && rules[k]['生效']!==false;
+    });
+    var aKeys=Object.keys(acts).filter(function(k){ return inEffectByTime(acts[k]); });
+    var h='';
+    if(rKeys.length===0 && aKeys.length===0){
+      h='<div class="empty">当前没有生效中的校规或活动。</div>';
+    } else {
+      if(rKeys.length>0){
+        h+='<div style="font-size:11px;color:#a0526a;font-weight:600;margin:2px 0;">📜 生效中校规（'+rKeys.length+'）</div>';
+        rKeys.forEach(function(k){
+          var it=rules[k]||{};
+          h+='<div class="it"><span class="nm">'+k+'</span><span>'+(it['内容']||'')+'</span><span class="tag">'+(it['期限']||'')+'</span></div>';
+        });
+      }
+      if(aKeys.length>0){
+        h+='<div style="font-size:11px;color:#a0526a;font-weight:600;margin:6px 0 2px;">🎪 生效中活动（'+aKeys.length+'）</div>';
+        aKeys.forEach(function(k){
+          var it=acts[k]||{};
+          h+='<div class="it"><span class="nm">'+k+'</span><span>'+(it['内容']||'')+'</span><span class="tag">'+(it['时间']||'')+'</span></div>';
+        });
+      }
+    }
+    body.innerHTML=h;
+  });
+}
+
+/* ================= 名单 ================= */
+function relStage(fav){
+  if(fav===undefined||fav===null) return '—';
+  if(fav<=0) return '陌生';
+  if(fav<20) return '认识';
+  if(fav<40) return '亲近';
+  if(fav<60) return '暧昧';
+  if(fav<80) return '攻略中';
+  return '攻略完成';
+}
+function esc(s){
+  return String(s===undefined||s===null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function renderList(){
+  readStat(function(sd){
+    var body=document.getElementById('list-body');
+    var roles=(sd['角色']||{});
+    var keys=Object.keys(roles);
+    if(keys.length===0){ body.innerHTML='<div class="empty">还没有录入的角色档案。认识新角色后这里就会显示。</div>'; return; }
+    var order=document.getElementById('lorder').value;
+    keys.sort(function(a,b){
+      if(order==='fav'){ return ((roles[b].好感度)||0)-((roles[a].好感度)||0); }
+      if(order==='credit'){ return ((roles[b].学分===undefined?20:roles[b].学分))-((roles[a].学分===undefined?20:roles[a].学分)); }
+      return a.localeCompare(b);
+    });
+    var h='<table><tr><th>姓名</th><th>年级</th><th>好感</th><th>阶段</th><th>学分</th><th>所在地</th><th>穿搭</th></tr>';
+    keys.forEach(function(k){
+      var r=roles[k]||{};
+      var outfit='';
+      var od=r['今日穿搭']||r['穿搭']||{};
+      if(typeof od==='object'){ outfit=esc(od['上装']||'').slice(0,16)+(od['上装']&&od['上装'].length>16?'…':''); }
+      else { outfit=esc(od).slice(0,16); }
+      var cr=r['学分'];
+      var creditStr=(cr===undefined)?'20':cr;
+      h+='<tr><td><b>'+esc(k)+'</b></td><td>'+esc(r['年龄']||'')+esc(r['班级']||'')+'</td><td>'+(r['好感度']!==undefined?r['好感度']:'—')+'</td><td>'+relStage(r['好感度'])+'</td><td>'+creditStr+'</td><td>'+esc(r['当前所在地']||'—')+'</td><td>'+outfit+'</td></tr>';
+    });
+    h+='</table>';
+    body.innerHTML=h;
+  });
+}
+
+/* ================= 玩法：随机事件 / 监控 ================= */
+function doEvent(){
+  var pool=[
+    '📢 校园广播突然插播了一则通知，走廊里很快响起细碎的议论声。',
+    '🏫 午休的保健室门虚掩着，里面传来轻轻的动静，似乎有人占用了床位。',
+    '📚 图书馆借阅台前排起小长队，一本热门杂志被传阅得边角都卷了。',
+    '🚻 某层楼的女厕所隔间传出小声的啜泣，像是有人躲进去哭。',
+    '🍰 学生街甜品店上了新品，放学后估计会排长队——不少女生已经在课间讨论它了。',
+    '🎨 综合技能楼美术室里画架摆了一排，有人趁没人注意偷偷给画上的人物加了奇怪涂鸦。',
+    '📱 某间宿舍的女生熄灯后还在偷偷传看什么东西，压低声音笑成一团。',
+    '🏟️ 操场角落有人在练习啦啦队动作，摔了好几次也没放弃。',
+    '🌙 圣樱湖边柳树下坐着个人影，抱着膝盖望着水面发呆。',
+    '📝 政教办公楼贴着新的公示，路过的人都会停下来看两眼。',
+    '🎒 有女生在储物柜前站了很久，像是在躲什么人，最后快步走开了。',
+    '☎️ 宿管中心电话响了很久没人接，接着走廊广播响起了查寝预报。',
+    '🍱 膳食中心最里面的位置，有人独自占着，面前摆着两份餐盘。',
+    '🧩 文体活动中心的棋牌室聚了一小圈人，安静得反常，像在围观什么。'
+  ];
+  var picked=pool[Math.floor(Math.random()*pool.length)];
+  send('🎲（随机事件）'+picked+' 请把它自然地演进当前校园日常里，保持风格一致，节奏照旧停在玩家可互动的节点。');
+  renderAch('event');
+}
+function doCam(){
+  var loc=document.getElementById('camLoc').value.trim();
+  var tm=document.getElementById('camTime').value.trim();
+  if(!loc){ alert('请填写监控地点'); return; }
+  send('{{user}}用手机调取了圣樱的监控画面：地点「'+loc+'」'+(tm?'，时间「'+tm+'」':'，当前时刻')+'。以系统旁观视角详细描述画面里正在发生的事——她们不知道有人在看。');
+  renderAch('cam');
+}
+
+/* ================= 时间暂停 ================= */
+function togglePause(){
+  readStat(function(sd){
+    var paused=!!(sd['时间']&&sd['时间']['暂停']);
+    if(paused){
+      send('{{user}}解除了时间暂停，世界恢复流转，一切如常，没有人记得刚才发生过什么。');
+      writeStat(function(s){ s['时间']=s['时间']||{}; s['时间']['暂停']=false; });
+    } else {
+      send('{{user}}在手机上按下了时间暂停。全世界瞬间凝固——所有人都停在原地、毫无知觉，此刻没有任何人能干涉玩家，玩家做什么都不会有人察觉。');
+      writeStat(function(s){ s['时间']=s['时间']||{}; s['时间']['暂停']=true; });
+    }
+    setTimeout(renderStatus,300);
+  });
+}
+
+/* ================= 状态行 / 小日程 ================= */
+var SCHED=[
+  [0,'—','深夜','—'],
+  [360,'06:00','起床铃','—'],
+  [375,'06:15','晨跑/早操','06:45 早餐'],
+  [405,'06:45','早餐','07:30 晨会'],
+  [450,'07:30','晨会点名','07:40 早自习'],
+  [460,'07:40','早自习','08:00 第1节'],
+  [480,'08:00','第1节课','08:45 课间'],
+  [525,'08:45','课间','09:05 第2节'],
+  [545,'09:05','第2节课','09:50 大课间'],
+  [590,'09:50','大课间','10:15 自习'],
+  [615,'10:15','自习/阅读','11:30 午餐'],
+  [690,'11:30','午餐','12:10 午休'],
+  [730,'12:10','午休（禁外出）','13:30 下午课'],
+  [810,'13:30','第1节（杂课）','14:15 课间'],
+  [855,'14:15','课间','14:35 第2节'],
+  [875,'14:35','第2节（杂课）','15:20 放学'],
+  [920,'15:20','放学','15:30 社团'],
+  [930,'15:30','社团活动','17:00 洗澡'],
+  [1020,'17:00','洗澡（错峰）','18:00 晚餐'],
+  [1080,'18:00','晚餐','19:00 晚课'],
+  [1140,'19:00','晚课/晚自习','21:00 洗漱'],
+  [1260,'21:00','洗漱/自由','21:30 门禁'],
+  [1290,'21:30','门禁落锁','23:00 熄灯'],
+  [1380,'23:00','强制熄灯','—'],
+  [1440,'24:00','深夜','—']
+];
+function schedInfo(h,m){
+  var cur=h*60+m;
+  var prev=SCHED[0], nxtTxt='—';
+  for(var i=1;i<SCHED.length;i++){
+    if(SCHED[i][0]<=cur){ prev=SCHED[i]; nxtTxt=(SCHED[i+1]&&SCHED[i+1][3])||'—'; }
+    else break;
+  }
+  return {now:prev[2], nxt:nxtTxt};
+}
+function pad2(x){ return ('0'+x).slice(-2); }
+function gameNowStr(sd){
+  var t=(sd&&sd['时间'])||{};
+  var y=t['年']||2026, mo=t['月']||9, d=t['日']||1, hh=t['小时']||8, mi=t['分钟']||0;
+  return y+'-'+pad2(mo)+'-'+pad2(d)+'T'+pad2(hh)+':'+pad2(mi);
+}
+function defaultTimeInputs(sd){
+  var now=gameNowStr(sd);
+  ['rstart','rend','astart','aend','ptime'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el && !el.value){ el.value=now; }
+  });
+}
+function renderStatus(sd){
+  sd=sd||{};
+  var t=sd['时间']||{};
+  var hh=('0'+(t['小时']!==undefined?t['小时']:0)).slice(-2);
+  var mi=('0'+(t['分钟']!==undefined?t['分钟']:0)).slice(-2);
+  var date=(t['年']||'----')+'-'+('0'+(t['月']||1)).slice(-2)+'-'+('0'+(t['日']||1)).slice(-2);
+  document.getElementById('st-time').textContent=date+' '+hh+':'+mi;
+  document.getElementById('st-loc').textContent=(sd['玩家']&&sd['玩家']['当前所在地'])||'—';
+  var rules=Object.keys(sd['校规']||{}).filter(function(k){return k!=='违规记录' && sd['校规'][k] && sd['校规'][k]['生效']!==false;}).length;
+  document.getElementById('st-rules').textContent=rules;
+  var sc=schedInfo(parseInt(hh,10),parseInt(mi,10));
+  document.getElementById('st-next').textContent=sc.now+'｜'+sc.nxt;
+  var paused=!!(t['暂停']);
+  document.getElementById('st-pause-box').style.display=paused?'inline':'none';
+  document.getElementById('st-pause-btn').textContent=paused?'▶️ 解除暂停':'⏸ 暂停时间';
+  defaultTimeInputs(sd);
+}
+document.getElementById('st-pause-btn').addEventListener('click', togglePause);
+
+/* ================= 成就（localStorage） ================= */
+function renderAch(key){
+  try{
+    var k='sakura-ach';
+    var a=JSON.parse(localStorage.getItem(k)||'{}');
+    if(key){ a[key]=(a[key]||0)+1; localStorage.setItem(k,JSON.stringify(a)); }
+    var defs={rule:'📜校规',priv:'💌私发',ctrl:'⚡操控',act:'🎪活动',pause:'⏸暂停',event:'🎲事件',cam:'📹监控'};
+    var h='';
+    for(var kk in defs){
+      if(a[kk]){ h+='<span>'+defs[kk]+'×'+a[kk]+'</span>'; }
+    }
+    var el=document.getElementById('achi');
+    if(el){ el.innerHTML=h?('🏅 '+h):''; }
+  }catch(e){}
+}
+
+/* ================= 建议回复（options 读取） ================= */
+function renderSug(){
+  try{
+    if(typeof getChatMessages!=='function'||typeof getCurrentMessageId!=='function') return;
+    var msgs=getChatMessages(getCurrentMessageId());
+    var txt='';
+    if(msgs&&msgs[0]&&msgs[0].message){ txt=msgs[0].message; }
+    var m=txt.match(/<options>([\s\S]*?)<\/options>/);
+    var box=document.getElementById('sug-list');
+    if(!m||!m[1]){ box.innerHTML='<div class="empty" style="font-size:11px;color:#bbb;flex:1;">暂无建议选项</div>'; return; }
+    var opts=m[1].split('|').map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
+    if(opts.length===0){ box.innerHTML='<div class="empty" style="font-size:11px;color:#bbb;flex:1;">暂无建议选项</div>'; return; }
+    var h='';
+    opts.forEach(function(o){
+      h+='<button onclick="sendSug(\''+o.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'+esc(o)+'</button>';
+    });
+    box.innerHTML=h;
+  }catch(e){}
+}
+function sendSug(o){
+  var toI=document.getElementById('toInput')&&document.getElementById('toInput').checked;
+  if(toI){ appendToInput(o); return; }
+  if(typeof createChatMessages==='function'&&typeof triggerSlash==='function'){
+    createChatMessages([{role:'user',name:'樊麒',message:o}]).then(function(){ triggerSlash('/trigger'); });
+  }
+}
+
+/* ================= 初始化 ================= */
+;(function(){
+  closePanels();
+  renderStatus();
+  renderRules();
+  renderPriv();
+  renderCtrl();
+  renderAct();
+  renderList();
+  renderLive();
+  renderSug();
+  renderAch();
+  ctrlTick();
+  setInterval(function(){ renderStatus(); renderSug(); },4000);
+})();
+window.renderStatus=renderStatus; window.renderRules=renderRules; window.renderPriv=renderPriv;
+window.renderCtrl=renderCtrl; window.renderAct=renderAct; window.renderList=renderList;
+window.renderLive=renderLive;
+window.doRule=doRule; window.doPriv=doPriv; window.doCtrl=doCtrl; window.doAct=doAct;
+window.revokeRule=revokeRule; window.closeCtrl=closeCtrl;
+window.doEvent=doEvent; window.doCam=doCam; window.togglePause=togglePause; window.sendSug=sendSug;
+window.ctrlTick=ctrlTick; window.termSel=termSel; window.renderAch=renderAch;
 </script>
 </body>
 </html>
