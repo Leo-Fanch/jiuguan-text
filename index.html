@@ -229,21 +229,32 @@ function readStat(cb){
     var fn = getVarsFn('getVariables', '_getVariables');
     if (fn){
       var done = false;
-      var finish = function(vs){
-        if (done) return; done = true;
-        var sd = (vs && vs.stat_data) ? vs.stat_data
-               : ((vs && vs[0] && vs[0].stat_data) ? vs[0].stat_data
-               : ((vs && vs.variables && vs.variables.stat_data) ? vs.variables.stat_data : {}));
-        cb(sd || {});
+      var extract = function(vs){
+        return (vs && vs.stat_data) ? vs.stat_data
+             : ((vs && vs[0] && vs[0].stat_data) ? vs[0].stat_data
+             : ((vs && vs.variables && vs.variables.stat_data) ? vs.variables.stat_data : {}));
       };
-      try {
-        var ret = fn({type:'message', message_id:'latest'});
-        if (ret && typeof ret.then === 'function') {
-          ret.then(finish).catch(function(){ if(!done){done=true; cb({});} });
-        } else {
-          finish(ret);
-        }
-      } catch(err) { if(!done){done=true; cb({});} }
+      var finish = function(vs){ if(done) return; done = true; cb(extract(vs) || {}); };
+      // 双源读取：优先 -2 (AI消息，stat_data完整)，发布瞬间用户消息快照不影响；缺失再回退 latest
+      var tryRead = function(mid){
+        try {
+          var ret = fn({type:'message', message_id:mid});
+          if (ret && typeof ret.then === 'function') {
+            ret.then(function(vs){
+              var sd = extract(vs);
+              if (sd && sd['时间'] && sd['时间']['年'] !== undefined) finish(vs);
+              else if (mid !== 'latest') tryRead('latest');
+              else finish(vs);
+            }).catch(function(){ if(mid !== 'latest') tryRead('latest'); else {done=true; cb({});} });
+          } else {
+            var sd = extract(ret);
+            if (sd && sd['时间'] && sd['时间']['年'] !== undefined) finish(ret);
+            else if (mid !== 'latest') tryRead('latest');
+            else finish(ret);
+          }
+        } catch(err){ if(!done){ if(mid !== 'latest') tryRead('latest'); else {done=true; cb({});} } }
+      };
+      tryRead(-2);
     } else { cb({}); }
   }catch(e){ cb({}); }
 }
@@ -674,6 +685,7 @@ function defaultTimeInputs(sd){
     if(el && !el.value){ el.value=now; }
   });
 }
+var __lastShownTs = null;  // 上次成功显示的时间戳(分钟数)，用于单调保护
 function renderStatus(sd){
   // 无参调用（初始化/定时器/暂停恢复）时，自己先读 stat_data 再渲染，禁止用空对象覆盖
   if(!sd){
@@ -681,6 +693,12 @@ function renderStatus(sd){
     return;
   }
   var t=sd['时间']||{};
+  // 时间单调保护：读到的时间早于已显示的（发布瞬间会短暂读到旧快照），忽略本次覆盖
+  if(t['年']!==undefined && t['小时']!==undefined){
+    var ts=t['年']*12*31*24*60 + (t['月']||1)*31*24*60 + (t['日']||1)*24*60 + t['小时']*60 + (t['分钟']||0);
+    if(__lastShownTs!==null && ts < __lastShownTs){ return; }  // 旧数据，不覆盖
+    __lastShownTs = ts;
+  }
   var hh=('0'+(t['小时']!==undefined?t['小时']:0)).slice(-2);
   var mi=('0'+(t['分钟']!==undefined?t['分钟']:0)).slice(-2);
   var date=(t['年']||'----')+'-'+('0'+(t['月']||1)).slice(-2)+'-'+('0'+(t['日']||1)).slice(-2);
