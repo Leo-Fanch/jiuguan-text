@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>圣樱控制台 v23</title>
+<title>圣樱控制台 v24</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:"Microsoft YaHei",sans-serif;background:#fff;color:#333;}
@@ -295,7 +295,7 @@ function send(txt){
   return true;
 }
 function closePanels(){ document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('open');}); }
-function toggle(p){ var el=document.getElementById(p); if(el.classList.contains('open')){el.classList.remove('open');}else{closePanels();el.classList.add('open');} }
+function toggle(p){ var el=document.getElementById(p); if(el.classList.contains('open')){el.classList.remove('open');}else{closePanels();el.classList.add('open');} renderPanel(p); }
 document.querySelectorAll('.bar button[data-p]').forEach(function(b){ b.addEventListener('click',function(){
   var p='p-'+b.getAttribute('data-p');
   toggle(p);
@@ -582,7 +582,7 @@ function renderList(){
       if(order==='credit'){ return ((roles[b].学分===undefined?20:roles[b].学分))-((roles[a].学分===undefined?20:roles[a].学分)); }
       return a.localeCompare(b);
     });
-    var h='<table><tr><th>姓名</th><th>年级</th><th>好感</th><th>阶段</th><th>学分</th><th>所在地</th><th>穿搭</th></tr>';
+    var h='<table><tr><th>姓名</th><th>年级</th><th>好感</th><th>阶段</th><th>认知</th><th>学分</th><th>所在地</th><th>穿搭</th>';
     keys.forEach(function(k){
       var r=roles[k]||{};
       var outfit='';
@@ -591,7 +591,7 @@ function renderList(){
       else { outfit=esc(od).slice(0,16); }
       var cr=r['学分'];
       var creditStr=(cr===undefined)?'20':cr;
-      h+='<tr><td><b>'+esc(k)+'</b></td><td>'+esc(r['年龄']||'')+esc(r['班级']||'')+'</td><td>'+(r['好感度']!==undefined?r['好感度']:'—')+'</td><td>'+relStage(r['好感度'])+'</td><td>'+creditStr+'</td><td>'+esc(r['当前所在地']||'—')+'</td><td>'+outfit+'</td></tr>';
+      h+='<tr><td><b>'+esc(k)+'</b></td><td>'+esc(r['年龄']||'')+esc(r['班级']||'')+'</td><td>'+(r['好感度']!==undefined?r['好感度']:'—')+'</td><td>'+relStage(r['好感度'])+'</td><td>'+(r['认知度']!==undefined?r['认知度']:'—')+'</td><td>'+creditStr+'</td><td>'+esc(r['当前所在地']||'—')+'</td><td>'+outfit+'</td></tr>';
     });
     h+='</table>';
     body.innerHTML=h;
@@ -707,10 +707,15 @@ function renderStatus(sd){
     if(__lastShownTs!==null && ts < __lastShownTs){ return; }  // 旧数据，不覆盖
     __lastShownTs = ts;
   }
-  var hh=('0'+(t['小时']!==undefined?t['小时']:0)).slice(-2);
-  var mi=('0'+(t['分钟']!==undefined?t['分钟']:0)).slice(-2);
-  var date=(t['年']||'----')+'-'+('0'+(t['月']||1)).slice(-2)+'-'+('0'+(t['日']||1)).slice(-2);
-  document.getElementById('st-time').textContent=date+' '+hh+':'+mi;
+  var hasValidTime=(t['年']!==undefined && t['小时']!==undefined);
+  var timeEl=document.getElementById('st-time');
+  if(!hasValidTime){ timeEl.textContent='等待剧情时间推进'; }
+  else{
+    var hh=('0'+(t['小时']!==undefined?t['小时']:0)).slice(-2);
+    var mi=('0'+(t['分钟']!==undefined?t['分钟']:0)).slice(-2);
+    var date=(t['年'])+'-'+('0'+(t['月']||1)).slice(-2)+'-'+('0'+(t['日']||1)).slice(-2);
+    timeEl.textContent=date+' '+hh+':'+mi;
+  }
   document.getElementById('st-loc').textContent=(sd['玩家']&&sd['玩家']['当前所在地'])||'—';
   var rules=Object.keys(sd['校规']||{}).filter(function(k){return k!=='违规记录' && sd['校规'][k] && sd['校规'][k]['生效']!==false;}).length;
   document.getElementById('st-rules').textContent=rules;
@@ -771,20 +776,36 @@ function sendSug(o){
   ccm([{role:'user',name:'{{user}}',message:o}]).then(function(){ ts('/trigger'); });
 }
 
+/* ================= 面板渲染调度 ================= */
+var PANEL_RENDER={'p-rule':renderRules,'p-priv':renderPriv,'p-ctrl':renderCtrl,'p-act':renderAct,'p-list':renderList,'p-live':renderLive,'p-sug':renderSug};
+function renderPanel(id){ var f=PANEL_RENDER[id]; if(typeof f==='function'){ try{ f(); }catch(e){} } }
+function refreshOpenPanel(){ document.querySelectorAll('.panel.open').forEach(function(p){ renderPanel(p.id); }); }
+function statReady(){
+  try{
+    var fn=getVarsFn('getVariables','_getVariables');
+    if(!fn) return false;
+    var v=fn({type:'message',message_id:'latest'});
+    if(v && typeof v.then==='function') return false;
+    var sd=(v&&v.stat_data)?v.stat_data:((v&&v[0]&&v[0].stat_data)?v[0].stat_data:{});
+    return !!(sd && sd['时间'] && sd['时间']['年']!==undefined);
+  }catch(e){ return false; }
+}
+function bootAll(){ renderStatus(); renderRules(); renderPriv(); renderCtrl(); renderAct(); renderList(); renderLive(); renderSug(); renderAch(); }
+
 /* ================= 初始化 ================= */
 ;(function(){
   closePanels();
-  renderStatus();
-  renderRules();
-  renderPriv();
-  renderCtrl();
-  renderAct();
-  renderList();
-  renderLive();
-  renderSug();
-  renderAch();
   ctrlTick();
-  setInterval(function(){ renderStatus(); renderSug(); },4000);
+  bootAll();
+  // 酒馆助手 API 常在页面脚本之后才注入：未就绪时快速重试，读到 stat_data 后补渲染一次
+  var tries=0;
+  var boot=setInterval(function(){
+    tries++;
+    if(statReady()){ clearInterval(boot); bootAll(); }
+    else if(tries>=12){ clearInterval(boot); }
+  },500);
+  // 定时刷新状态行 + 「当前打开的面板」，避免面板停在首次读取时的空态
+  setInterval(function(){ renderStatus(); renderSug(); refreshOpenPanel(); },4000);
 })();
 window.renderStatus=renderStatus; window.renderRules=renderRules; window.renderPriv=renderPriv;
 window.renderCtrl=renderCtrl; window.renderAct=renderAct; window.renderList=renderList;
