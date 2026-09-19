@@ -227,35 +227,43 @@ function getVarsFn(shortName, longName){
 function readStat(cb){
   try{
     var fn = getVarsFn('getVariables', '_getVariables');
-    if (fn){
-      var done = false;
-      var extract = function(vs){
-        return (vs && vs.stat_data) ? vs.stat_data
-             : ((vs && vs[0] && vs[0].stat_data) ? vs[0].stat_data
-             : ((vs && vs.variables && vs.variables.stat_data) ? vs.variables.stat_data : {}));
-      };
-      var finish = function(vs){ if(done) return; done = true; cb(extract(vs) || {}); };
-      // 双源读取：优先 -2 (AI消息，stat_data完整)，发布瞬间用户消息快照不影响；缺失再回退 latest
-      var tryRead = function(mid){
-        try {
-          var ret = fn({type:'message', message_id:mid});
-          if (ret && typeof ret.then === 'function') {
-            ret.then(function(vs){
-              var sd = extract(vs);
-              if (sd && sd['时间'] && sd['时间']['年'] !== undefined) finish(vs);
-              else if (mid !== 'latest') tryRead('latest');
-              else finish(vs);
-            }).catch(function(){ if(mid !== 'latest') tryRead('latest'); else {done=true; cb({});} });
-          } else {
-            var sd = extract(ret);
-            if (sd && sd['时间'] && sd['时间']['年'] !== undefined) finish(ret);
-            else if (mid !== 'latest') tryRead('latest');
-            else finish(ret);
-          }
-        } catch(err){ if(!done){ if(mid !== 'latest') tryRead('latest'); else {done=true; cb({});} } }
-      };
-      tryRead(-2);
-    } else { cb({}); }
+    if (!fn){ cb({}); return; }
+    var done = false, pending = 0, best = null;
+    var extract = function(vs){
+      return (vs && vs.stat_data) ? vs.stat_data
+           : ((vs && vs[0] && vs[0].stat_data) ? vs[0].stat_data
+           : ((vs && vs.variables && vs.variables.stat_data) ? vs.variables.stat_data : {}));
+    };
+    var tsOf = function(sd){
+      var t = sd && sd['时间']; if (!t) return null;
+      if (t['年']===undefined || t['月']===undefined || t['日']===undefined) return null;
+      return ((((((t['年']||0)*12 + (t['月']||1))*31 + (t['日']||1))*24 + (t['小时']||0))*60) + (t['分钟']||0));
+    };
+    var maybeDone = function(){
+      if (done || pending > 0) return; done = true;
+      cb(best ? best.sd : {});
+    };
+    var consider = function(vs, weight){
+      var sd = extract(vs); var ts = tsOf(sd);
+      // 只认带完整时间的快照；key=时间*10+权重(latest=3 优先于 -1/2 -2/1)，同分钟时 latest 优先
+      if (ts === null) return;
+      var key = ts*10 + weight;
+      if (!best || key > best.key) best = {key:key, sd:sd};
+    };
+    var grab = function(mid, weight){
+      pending++;
+      try{
+        var ret = fn({type:'message', message_id:mid});
+        if (ret && typeof ret.then === 'function'){
+          ret.then(function(vs){ consider(vs, weight); pending--; maybeDone(); })
+             .catch(function(){ pending--; maybeDone(); });
+        } else { consider(ret, weight); pending--; maybeDone(); }
+      }catch(e){ pending--; maybeDone(); }
+    };
+    // 多源择优：latest + 倒数两条一起读，取时间最大的快照；任何 -1/-2/latest 语义都不会读成旧值
+    grab('latest', 3);
+    grab(-1, 2);
+    grab(-2, 1);
   }catch(e){ cb({}); }
 }
 function readInputBox(){
