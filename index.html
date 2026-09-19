@@ -69,10 +69,17 @@ td{padding:3px 5px;border-bottom:1px solid #ffeef5;color:#555;vertical-align:top
 .ch{border:1px solid #ffd0df;border-radius:6px;padding:6px 7px;margin-bottom:6px;background:#fff;}
 .ch-top{display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
 .ch-nm{font-weight:700;color:#c9456f;font-size:12px;}
-.ch-out{margin-top:5px;display:flex;flex-direction:column;gap:2px;}
-.okv{display:flex;gap:6px;font-size:11px;color:#555;line-height:1.45;}
-.okv b{flex:0 0 36px;color:#a0526a;font-weight:600;}
-.okv span{flex:1 1 auto;min-width:0;overflow-wrap:anywhere;word-break:break-word;text-wrap:balance;}
+.ch-out{margin-top:5px;display:flex;flex-wrap:wrap;gap:3px 12px;align-items:baseline;}
+.okv{display:inline-flex;gap:4px;font-size:11px;color:#555;line-height:1.5;max-width:100%;}
+.okv b{flex:0 0 auto;color:#a0526a;font-weight:600;}
+.okv span{flex:0 1 auto;min-width:0;overflow-wrap:anywhere;word-break:break-word;}
+.ch-bd{margin-top:4px;display:flex;flex-wrap:wrap;gap:3px 12px;align-items:baseline;font-size:11px;color:#555;line-height:1.5;}
+.ch-bd.has-d{color:#7a6f8a;cursor:pointer;}
+.ch-bd b{flex:0 0 auto;color:#7a6f8a;font-weight:600;}
+.ch-bd .bi{display:inline-flex;gap:4px;max-width:100%;}
+.ch-bd .bd-desc{display:none;flex-basis:100%;color:#8a7f86;font-size:10.5px;line-height:1.5;padding-left:2px;}
+.ch-bd.open .bd-desc{display:block;}
+.ch-bd .caret{color:#c9a8b6;font-size:9px;}
 @media (max-width:720px){ .grid2{grid-template-columns:1fr;} .opt button{flex:1 1 45%;} }
 </style>
 </head>
@@ -618,9 +625,25 @@ function outfitHtml(r){
   var h='';
   rows.forEach(function(p){
     var v=(p[1]===undefined||p[1]===null||p[1]==='')?'—':p[1];
-    h+='<div class="okv"><b>'+p[0]+'</b><span>'+esc(v)+'</span></div>';
+    h+='<span class="okv"><b>'+p[0]+'</b><span>'+esc(v)+'</span></span>';
   });
   return h;
+}
+// 身体数据：四项短值同行流式；有描述时可点开看（不占地方）
+function bodyHtml(r){
+  var bd=r['身体数据'];
+  if(!bd || typeof bd!=='object') return '';
+  var parts=[['胸部','罩杯'],['腰部','腰型'],['臀部','臀型'],['腿部','腿型']];
+  var items='', descs='', cnt=0;
+  parts.forEach(function(p){
+    var o=bd[p[0]];
+    if(!o || typeof o!=='object') return;
+    cnt++;
+    items+='<span class="bi"><b>'+p[0]+'</b>'+esc(o[p[1]]||'—')+'</span>';
+    if(o['描述']){ descs+='<span class="bd-desc">'+p[0]+'：'+esc(o['描述'])+'</span>'; }
+  });
+  if(!cnt) return '';
+  return '<div class="ch-bd'+(descs?' has-d':'')+'"'+(descs?' onclick="this.classList.toggle(\'open\')"':'')+'>'+items+(descs?'<span class="caret">▾</span>':'')+descs+'</div>';
 }
 function renderList(){
   readStat(function(sd){
@@ -650,6 +673,7 @@ function renderList(){
         +'<span class="tag">地点 '+esc(r['当前所在地']||'—')+'</span>'
         +'</div>'
         +'<div class="ch-out">'+outfitHtml(r)+'</div>'
+        +bodyHtml(r)
         +'</div>';
     });
     body.innerHTML=h;
