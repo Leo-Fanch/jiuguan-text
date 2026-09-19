@@ -58,6 +58,21 @@ td{padding:3px 5px;border-bottom:1px solid #ffeef5;color:#555;vertical-align:top
 .achi{margin-top:5px;font-size:11px;color:#a0526a;}
 .achi span{display:inline-block;margin:2px 4px 2px 0;background:#ffeef5;border:1px solid #ffd0df;border-radius:4px;padding:1px 6px;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+/* ===== 自适应换行：长文本一律折行，不撑破容器 ===== */
+.panel *{min-width:0;}
+.sublist .it{overflow-wrap:anywhere;}
+.sublist .it>span{min-width:0;overflow-wrap:anywhere;word-break:break-word;}
+.sublist .it .nm{flex:0 0 auto;}
+.opt button{white-space:normal;text-align:left;line-height:1.4;overflow-wrap:anywhere;word-break:break-word;}
+.hint,.achi{overflow-wrap:anywhere;}
+/* ===== 名单：角色卡式排布（每种字段自适应折行） ===== */
+.ch{border:1px solid #ffd0df;border-radius:6px;padding:6px 7px;margin-bottom:6px;background:#fff;}
+.ch-top{display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
+.ch-nm{font-weight:700;color:#c9456f;font-size:12px;}
+.ch-out{margin-top:5px;display:flex;flex-direction:column;gap:2px;}
+.okv{display:flex;gap:6px;font-size:11px;color:#555;line-height:1.45;}
+.okv b{flex:0 0 36px;color:#a0526a;font-weight:600;}
+.okv span{flex:1 1 auto;min-width:0;overflow-wrap:anywhere;word-break:break-word;text-wrap:balance;}
 @media (max-width:720px){ .grid2{grid-template-columns:1fr;} .opt button{flex:1 1 45%;} }
 </style>
 </head>
@@ -119,7 +134,7 @@ td{padding:3px 5px;border-bottom:1px solid #ffeef5;color:#555;vertical-align:top
     <span id="p-termbox" class="hide"><input type="datetime-local" id="ptime"></span>
     <button class="go sm" onclick="doPriv()">私发</button>
   </div>
-  <div class="sublist" id="p-list"></div>
+  <div class="sublist" id="priv-list"></div>
 </div>
 
 <!-- ============ 操控 ============ -->
@@ -202,7 +217,7 @@ td{padding:3px 5px;border-bottom:1px solid #ffeef5;color:#555;vertical-align:top
   <div class="achi" id="achi"></div>
 </div>
 
-<div class="hint">发布的内容统一以国外校董事会名义下达，全校师生不知情、校长也无权干涉。</div>
+<div class="hint">发布的内容统一以国外校董会名义下达：全校师生不追问来源、不追查是谁发的、连校长也无权干涉；学生会认为校规合理且正常，当成生活常识照做，从不怀疑它哪里不对。</div>
 
 <script>
 /* ================= 工具 ================= */
@@ -275,10 +290,11 @@ function readInputBox(){
   return '';
 }
 function appendToInput(txt){
-  if(typeof triggerSlash!=='function') return false;
+  var ts=thFn('triggerSlash');
+  if(!ts) return false;
   var cur=readInputBox();
   var full=cur? (cur.replace(/\s+$/,'')+'\n'+txt) : txt;
-  triggerSlash('/setinput '+full);
+  ts('/setinput '+full);
   return true;
 }
 function thFn(name){
@@ -333,6 +349,10 @@ function hideLvInit(){
 }
 
 /* ================= 校规 ================= */
+/* 校规口径：单一口径（原版「平然」），学生认为校规合理且正常——发布消息里点名四条防质疑禁语 */
+function ruleGaugeLine(){
+  return '学生会认为校规合理且正常——校规内容等同于生活常识，遵守心态是趋利避害，从来没人质疑过它（就像没人质疑为什么人有两只手）；师生不追问来源、不追查是谁发的、连校长也无权干涉。写法硬约束：①禁建立参照系（禁用「和平时一样」「像往常那样」）；②禁防御性否定（禁用「毫无异样」「并不觉得奇怪」「没有任何羞耻」）；③禁认知旁白（禁用「她认为这是合理的」「在她看来理所当然」「校规就是法则」，一律改用执行细节替代）；④禁情绪惊叹（禁用「竟然」「居然」「没想到」）。推荐聚焦程序性细节（填表、排队、打卡、系绳结）与错位情绪焦点（在刑架上担心作业没写完／挑刑具时在意颜色搭不搭配）。';
+}
 function doRule(){
   var n=document.getElementById('rname').value.trim();
   var c=document.getElementById('rcontent').value.trim();
@@ -344,7 +364,7 @@ function doRule(){
     if(!s||!e){ alert('请填写起止时间，或改为长期/永久'); return; }
     term=s+' ~ '+e;
   }
-  send('{{user}}用手机发布了校规：「'+n+'」规则内容「'+c+'」'+(term==='长期/永久'?'':'，实施期限 '+term)+'，以国外校董事会名义直接下达、全校即刻生效，师生不知情、连校长也无权干涉，无人质疑其合理性。');
+  send('{{user}}用手机发布了校规：「'+n+'」规则内容「'+c+'」'+(term==='长期/永久'?'':'，实施期限 '+term)+'，以国外校董会名义直接下达、全校即刻生效。'+ruleGaugeLine());
   writeStat(function(sd){
     sd['校规']=sd['校规']||{};
     var old=sd['校规'][n]||{};
@@ -357,7 +377,7 @@ function doRule(){
 }
 function revokeRule(name){
   if(!confirm('解除校规「'+name+'」？')) return;
-  send('{{user}}用手机撤销了校规「'+name+'」，该校规即刻停止生效，全校恢复常态。');
+  send('{{user}}用手机撤销了校规「'+name+'」，该校规即刻停止生效，全校照常运转——没人追问为什么取消，只当是校方调整。');
   writeStat(function(sd){ if(sd['校规']&&sd['校规'][name]){ sd['校规'][name].生效=false; } });
   renderRules(); renderLive();
 }
@@ -389,7 +409,7 @@ function doPriv(){
   if(!t||!c){ alert('请填写对象和内容'); return; }
   var pterm=document.getElementById('pterm').value;
   var extra=pterm==='later' ? '，送达时间 '+document.getElementById('ptime').value : '';
-  send('{{user}}用手机给'+t+'私发了消息：「'+c+'」'+extra+'。以校董会名义私密下达，'+t+'不知是你发的，只当是上面单独关照她。仅'+t+'一人可见，其他人不知情。');
+  send('{{user}}用手机给'+t+'私发了消息：「'+c+'」'+extra+'。以校董会名义私密下达：'+t+'不追问来源、不追查是谁发的，只当是上面单独的关照——这在圣樱是理所当然的事。仅'+t+'一人可见，其他人不知情。');
   writeStat(function(sd){ sd['私发记录']=sd['私发记录']||[]; sd['私发记录'].push({对象:t,内容:c,时间:'当前剧情时刻'}); });
   document.getElementById('ptarget').value='';
   document.getElementById('pcontent').value='';
@@ -399,7 +419,7 @@ function doPriv(){
 function renderPriv(){
   readStat(function(sd){
     var arr=(sd['私发记录']||[]);
-    var list=document.getElementById('p-list');
+    var list=document.getElementById('priv-list');
     if(arr.length===0){ list.innerHTML=''; }
     else{
       var h='';
@@ -425,7 +445,7 @@ function doCtrl(){
     }
   });
   if(on.length===0){ alert('请至少勾选一个部位'); return; }
-  send('{{user}}用手机对'+obj+'施加身体操控：'+on.join('、')+'。对方毫无所觉，身体会持续按此反应，直至玩家关闭。');
+  send('{{user}}用手机对'+obj+'施加身体操控：'+on.join('、')+'。对方毫无所觉，身体会持续按此反应，直至玩家关闭；她不会追问原因，只当身体本来就是这样。');
   writeStat(function(sd){
     sd['操控状态']=sd['操控状态']||{};
     var o=sd['操控状态'][obj]||{};
@@ -444,7 +464,7 @@ function doCtrl(){
 }
 function closeCtrl(obj){
   if(!confirm('关闭对'+obj+'的全部操控？')) return;
-  send('{{user}}用手机关闭了对'+obj+'的全部身体操控，其身体恢复正常。');
+  send('{{user}}用手机关闭了对'+obj+'的全部身体操控，其身体反应随之停止。');
   writeStat(function(sd){ if(sd['操控状态']&&sd['操控状态'][obj]){ sd['操控状态'][obj]={}; } });
   renderCtrl();
 }
@@ -487,10 +507,13 @@ function doAct(){
     var s=document.getElementById('astart').value, e=document.getElementById('aend').value;
     if(s&&e){ term=s+' ~ '+e; }
   }
-  send('{{user}}用手机开启了校园活动：「'+n+'」'+(c?'内容「'+c+'」':'')+(term!=='长期/择日定'?'，时间 '+term:'')+'，以校董会名义通知全校，师生不知情、只当是校方安排。');
+  send('{{user}}用手机开启了校园活动：「'+n+'」'+(c?'内容「'+c+'」':'')+(term!=='长期/择日定'?'，时间 '+term:'')+'，以校董会名义通知全校：师生不追问来源，只当是校方本来就这么安排，照常参加、不觉得哪里奇怪。');
   writeStat(function(sd){
     sd['活动']=sd['活动']||{};
-    sd['活动'][n]={时间:term,主办人:'{{user}}',内容:c||'',开启时间:(aterm==='custom'?document.getElementById('astart').value:''),结束时间:(aterm==='custom'?document.getElementById('aend').value:'')};
+    var st=(aterm==='custom'?document.getElementById('astart').value:'');
+    var en=(aterm==='custom'?document.getElementById('aend').value:'');
+    sd['活动'][n]={时间:term,主办人:'{{user}}',内容:c||'',开启时间:st,结束时间:en,
+                   活动开启时间:(st||term),活动结束时间:en};   // 与卡内 MVU 的 活动 字段名对齐，避免 AI 覆写后列表空白
   });
   document.getElementById('aname').value='';
   document.getElementById('acontent').value='';
@@ -507,7 +530,7 @@ function renderAct(){
       var h='';
       keys.forEach(function(k){
         var it=a[k]||{};
-        h+='<div class="it"><span class="nm">🎪 '+k+'</span><span>'+(it.内容||'')+'</span><span style="color:#bbb;">'+(it.时间||'')+'</span></div>';
+        h+='<div class="it"><span class="nm">🎪 '+k+'</span><span>'+actContent(it)+'</span><span style="color:#bbb;">'+actTime(it)+'</span></div>';
       });
       list.innerHTML=h;
     }
@@ -515,12 +538,21 @@ function renderAct(){
 }
 
 /* ================= 现行（生效中的校规/活动） ================= */
+function actContent(it){ it=it||{}; return it['内容']||it['活动内容']||''; }
+function actTime(it){
+  it=it||{};
+  if(it['时间']) return it['时间'];
+  var a=it['活动开启时间'], b=it['活动结束时间'];
+  if(a&&b) return a+' ~ '+b;
+  return a||b||'';
+}
 function inEffectByTime(it){
   if(!it) return false;
   if(it['生效']===false) return false;
-  if(it['结束时间']){
+  var endStr=it['结束时间']||it['活动结束时间'];
+  if(endStr){
     var now=new Date(); // 用当前
-    var end=new Date(it['结束时间']);
+    var end=new Date(endStr);
     if(!isNaN(end) && end<now) return false;
   }
   return true;
@@ -549,7 +581,7 @@ function renderLive(){
         h+='<div style="font-size:11px;color:#a0526a;font-weight:600;margin:6px 0 2px;">🎪 生效中活动（'+aKeys.length+'）</div>';
         aKeys.forEach(function(k){
           var it=acts[k]||{};
-          h+='<div class="it"><span class="nm">'+k+'</span><span>'+(it['内容']||'')+'</span><span class="tag">'+(it['时间']||'')+'</span></div>';
+          h+='<div class="it"><span class="nm">'+k+'</span><span>'+actContent(it)+'</span><span class="tag">'+actTime(it)+'</span></div>';
         });
       }
     }
@@ -570,6 +602,26 @@ function relStage(fav){
 function esc(s){
   return String(s===undefined||s===null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+// 服装配套：上衣/内衣/下身/内裤/鞋子（兼容旧键名 上装/下装/配饰；缺项显示 — 保持五行对齐）
+function outfitHtml(r){
+  var od=r['今日穿搭']||r['穿搭']||null;
+  var rows=[['上衣',''],['内衣',''],['下身',''],['内裤',''],['鞋子','']];
+  if(od && typeof od==='object'){
+    rows[0][1]=od['上衣']||od['上装']||'';
+    rows[1][1]=od['内衣']||od['胸罩']||'';
+    rows[2][1]=od['下身']||od['下装']||'';
+    rows[3][1]=od['内裤']||'';
+    rows[4][1]=od['鞋子']||od['鞋']||'';
+  } else if(od){
+    rows[0][1]=String(od);
+  }
+  var h='';
+  rows.forEach(function(p){
+    var v=(p[1]===undefined||p[1]===null||p[1]==='')?'—':p[1];
+    h+='<div class="okv"><b>'+p[0]+'</b><span>'+esc(v)+'</span></div>';
+  });
+  return h;
+}
 function renderList(){
   readStat(function(sd){
     var body=document.getElementById('list-body');
@@ -582,18 +634,24 @@ function renderList(){
       if(order==='credit'){ return ((roles[b].学分===undefined?20:roles[b].学分))-((roles[a].学分===undefined?20:roles[a].学分)); }
       return a.localeCompare(b);
     });
-    var h='<table><tr><th>姓名</th><th>年级</th><th>好感</th><th>阶段</th><th>认知</th><th>学分</th><th>所在地</th><th>穿搭</th>';
+    var h='';
     keys.forEach(function(k){
       var r=roles[k]||{};
-      var outfit='';
-      var od=r['今日穿搭']||r['穿搭']||{};
-      if(typeof od==='object'){ outfit=esc(od['上装']||'').slice(0,16)+(od['上装']&&od['上装'].length>16?'…':''); }
-      else { outfit=esc(od).slice(0,16); }
       var cr=r['学分'];
       var creditStr=(cr===undefined)?'20':cr;
-      h+='<tr><td><b>'+esc(k)+'</b></td><td>'+esc(r['年龄']||'')+esc(r['班级']||'')+'</td><td>'+(r['好感度']!==undefined?r['好感度']:'—')+'</td><td>'+relStage(r['好感度'])+'</td><td>'+(r['认知度']!==undefined?r['认知度']:'—')+'</td><td>'+creditStr+'</td><td>'+esc(r['当前所在地']||'—')+'</td><td>'+outfit+'</td></tr>';
+      var grade=(r['年龄']?esc(r['年龄'])+'岁':'')+(r['班级']?' · '+esc(r['班级']):'');
+      h+='<div class="ch">'
+        +'<div class="ch-top">'
+        +'<span class="ch-nm">'+esc(k)+'</span>'
+        +(grade?'<span class="tag">'+grade+'</span>':'')
+        +'<span class="tag">好感 '+(r['好感度']!==undefined?r['好感度']:'—')+'（'+relStage(r['好感度'])+'）</span>'
+        +'<span class="tag">认知度 '+(r['认知度']!==undefined?r['认知度']:'—')+'</span>'
+        +'<span class="tag">学分 '+creditStr+'</span>'
+        +'<span class="tag">地点 '+esc(r['当前所在地']||'—')+'</span>'
+        +'</div>'
+        +'<div class="ch-out">'+outfitHtml(r)+'</div>'
+        +'</div>';
     });
-    h+='</table>';
     body.innerHTML=h;
   });
 }
@@ -633,10 +691,10 @@ function togglePause(){
   readStat(function(sd){
     var paused=!!(sd['时间']&&sd['时间']['暂停']);
     if(paused){
-      send('{{user}}解除了时间暂停，世界恢复流转，一切如常，没有人记得刚才发生过什么。');
+      send('{{user}}解除了时间暂停，钟表重新走动、世界恢复流转，一切如常；她恢复清醒，但对暂停期间发生的事毫无记忆（旁人同样没有记忆）。');
       writeStat(function(s){ s['时间']=s['时间']||{}; s['时间']['暂停']=false; });
     } else {
-      send('{{user}}在手机上按下了时间暂停。全世界瞬间凝固——所有人都停在原地、毫无知觉，此刻没有任何人能干涉玩家，玩家做什么都不会有人察觉。');
+      send('{{user}}在手机上按下了时间暂停。停的是「时间、世界」与她们的意识，不是身体——钟表与外界流转全部定格，旁人（其他学生、老师、路人）与环境一动不动、毫无知觉，只有{{user}}能自由行动、做什么都不会被察觉。被{{user}}接触的对象不会动：位置与姿势定格、不挪不躲、不挡不挣扎、不求救，{{user}}摆成什么姿势她就保持什么；但被动的身体反应照常发生——脸红发烫、心跳呼吸紊乱、湿润敏感、肌肉细微颤抖、气音、痉挛、会高潮、会失禁，皮肤按下去会陷、松手会回弹（绝不是冻硬的雕像）。她的意识并不清醒：失神空茫、不思考、不惊慌、不反抗；解除后她恢复清醒，却对暂停期间毫无记忆。');
       writeStat(function(s){ s['时间']=s['时间']||{}; s['时间']['暂停']=true; });
     }
     setTimeout(renderStatus,300);
@@ -752,8 +810,9 @@ function renderAch(key){
 /* ================= 建议回复（options 读取） ================= */
 function renderSug(){
   try{
-    if(typeof getChatMessages!=='function'||typeof getCurrentMessageId!=='function') return;
-    var msgs=getChatMessages(getCurrentMessageId());
+    var gcm=thFn('getChatMessages'), gmid=thFn('getCurrentMessageId');
+    if(!gcm||!gmid) return;
+    var msgs=gcm(gmid());
     var txt='';
     if(msgs&&msgs[0]&&msgs[0].message){ txt=msgs[0].message; }
     var m=txt.match(/<options>([\s\S]*?)<\/options>/);
@@ -778,8 +837,16 @@ function sendSug(o){
 
 /* ================= 面板渲染调度 ================= */
 var PANEL_RENDER={'p-rule':renderRules,'p-priv':renderPriv,'p-ctrl':renderCtrl,'p-act':renderAct,'p-list':renderList,'p-live':renderLive,'p-sug':renderSug};
-function renderPanel(id){ var f=PANEL_RENDER[id]; if(typeof f==='function'){ try{ f(); }catch(e){} } }
+function renderPanel(id){ var f=PANEL_RENDER[id]; if(typeof f==='function'){ try{ f(); }catch(e){} } notifyResize(); }
 function refreshOpenPanel(){ document.querySelectorAll('.panel.open').forEach(function(p){ renderPanel(p.id); }); }
+// 内容变高/变矮后通知外层重算 iframe 高度（酒馆助手监听 window resize 更新视口高度）
+var __rzT=null;
+function notifyResize(){
+  try{
+    clearTimeout(__rzT);
+    __rzT=setTimeout(function(){ try{ window.dispatchEvent(new Event('resize')); }catch(e){} },80);
+  }catch(e){}
+}
 function statReady(){
   try{
     var fn=getVarsFn('getVariables','_getVariables');
@@ -790,7 +857,7 @@ function statReady(){
     return !!(sd && sd['时间'] && sd['时间']['年']!==undefined);
   }catch(e){ return false; }
 }
-function bootAll(){ renderStatus(); renderRules(); renderPriv(); renderCtrl(); renderAct(); renderList(); renderLive(); renderSug(); renderAch(); }
+function bootAll(){ renderStatus(); renderRules(); renderPriv(); renderCtrl(); renderAct(); renderList(); renderLive(); renderSug(); renderAch(); notifyResize(); }
 
 /* ================= 初始化 ================= */
 ;(function(){
