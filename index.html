@@ -19,7 +19,11 @@ body{font-family:"Microsoft YaHei",sans-serif;background:#fff;color:#333;}
 .stbar .paused{background:#fff0f0;color:#cc3333;font-weight:700;border:1px solid #ffb3b3;border-radius:4px;padding:0 5px;}
 .stbar .pbtn{border:1px solid #ffb3c9;background:#fff;color:#c9456f;border-radius:4px;padding:0 6px;font-size:11px;cursor:pointer;}
 .stbar .pbtn:hover{background:#ffe0ec;}
-.panel{display:none;border:1px solid #ffc1d4;border-top:none;border-radius:0 0 8px 8px;padding:9px;background:#fffafc;}
+.panel{display:none;border:1px solid #ffc1d4;border-top:none;border-radius:0 0 8px 8px;padding:9px;background:#fffafc;max-height:340px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
+.panel::-webkit-scrollbar{width:8px;}
+.panel::-webkit-scrollbar-track{background:#fff3f7;border-radius:4px;}
+.panel::-webkit-scrollbar-thumb{background:#ffc1d4;border-radius:4px;}
+.panel::-webkit-scrollbar-thumb:hover{background:#ffa8c2;}
 .panel.open{display:block;}
 .panel label{font-size:12px;color:#555;margin:5px 0 2px;display:block;white-space:nowrap;}
 .panel input,.panel select,.panel textarea{padding:4px 6px;border:1px solid #ffc1d4;border-radius:5px;font-size:12px;background:#fff;}
