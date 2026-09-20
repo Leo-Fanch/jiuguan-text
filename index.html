@@ -69,6 +69,8 @@ td{padding:3px 5px;border-bottom:1px solid #ffeef5;color:#555;vertical-align:top
 .ch{border:1px solid #ffd0df;border-radius:6px;padding:6px 7px;margin-bottom:6px;background:#fff;}
 .ch-top{display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
 .ch-nm{font-weight:700;color:#c9456f;font-size:12px;}
+.ch-top .tag.vg{background:#fff0f6;border-color:#ffc2d8;color:#c9456f;font-weight:600;}
+.ch-top .tag.vg.nx{background:#f5f2ff;border-color:#dcd0f5;color:#8264ad;}
 .ch-out{margin-top:5px;display:flex;flex-wrap:wrap;gap:3px 12px;align-items:baseline;}
 .okv{display:inline-flex;gap:4px;font-size:11px;color:#555;line-height:1.5;max-width:100%;}
 .okv b{flex:0 0 auto;color:#a0526a;font-weight:600;}
@@ -80,6 +82,7 @@ td{padding:3px 5px;border-bottom:1px solid #ffeef5;color:#555;vertical-align:top
 .ch-bd .bd-desc{display:none;flex-basis:100%;color:#8a7f86;font-size:10.5px;line-height:1.5;padding-left:2px;}
 .ch-bd.open .bd-desc{display:block;}
 .ch-bd .caret{color:#c9a8b6;font-size:9px;}
+.ch-bd .rk{flex:0 0 auto;color:#a0526a;font-weight:700;}
 @media (max-width:720px){ .grid2{grid-template-columns:1fr;} .opt button{flex:1 1 45%;} }
 </style>
 </head>
@@ -645,6 +648,47 @@ function bodyHtml(r){
   if(!cnt) return '';
   return '<div class="ch-bd'+(descs?' has-d':'')+'"'+(descs?' onclick="this.classList.toggle(\'open\')"':'')+'>'+items+(descs?'<span class="caret">▾</span>':'')+descs+'</div>';
 }
+// 经验档案三格 → 全部写进人名右边：处女/非处女 · N次 ｜ 性癖 XX
+function expTag(r){
+  var e=r['经验档案'];
+  if(!e || typeof e!=='object') return '';
+  var out='';
+  if(e['是否处女']!==undefined && e['是否处女']!==null){
+    var a=e['是否处女']?'处女':'非处女';
+    if(e['经验次数']!==undefined && e['经验次数']!==null) a+=' · '+esc(String(e['经验次数']))+'次';
+    out+='<span class="tag vg'+(e['是否处女']?'':' nx')+'">'+esc(a)+'</span>';
+  }else if(e['经验次数']!==undefined && e['经验次数']!==null){
+    out+='<span class="tag vg">经验 '+esc(String(e['经验次数']))+'次</span>';
+  }
+  var tg=e['性癖标签'];
+  if(tg!==undefined && tg!==null){
+    var tv=Array.isArray(tg)?(tg.join('、')||'—'):String(tg);
+    out+='<span class="tag vg">性癖 '+esc(tv)+'</span>';
+  }
+  return out;
+}
+// 隐私档案四格是长描述串：行内只显示「前缀摘要」，点开看全文
+function shortOf(s, max){
+  s=String(s||'').trim();
+  if(!s) return '';
+  var m=s.match(/^(类型[A-C][^：:]{0,14})[：:]/);     // 小穴常见写法「类型A·紧凑敏感型：…」
+  if(m) return m[1];
+  var c=s.split(/[，,。；;：:、]/)[0];
+  return c.length>(max||10) ? c.slice(0,max||10)+'…' : c;
+}
+function privHtml(r){
+  var p=r['隐私档案'];
+  if(!p || typeof p!=='object') return '';
+  var parts=['小穴','菊穴','阴道','分泌物'], items='', descs='', cnt=0;
+  parts.forEach(function(k){
+    var s=p[k]; if(!s) return;
+    cnt++;
+    items+='<span class="bi"><b>'+k+'</b>'+esc(shortOf(s,10))+'</span>';
+    descs+='<span class="bd-desc">'+k+'：'+esc(s)+'</span>';
+  });
+  if(!cnt) return '';
+  return '<div class="ch-bd has-d" onclick="this.classList.toggle(\'open\')"><span class="rk">隐私</span>'+items+'<span class="caret">▾</span>'+descs+'</div>';
+}
 function renderList(){
   readStat(function(sd){
     var body=document.getElementById('list-body');
@@ -666,6 +710,7 @@ function renderList(){
       h+='<div class="ch">'
         +'<div class="ch-top">'
         +'<span class="ch-nm">'+esc(k)+'</span>'
+        +expTag(r)
         +(grade?'<span class="tag">'+grade+'</span>':'')
         +'<span class="tag">好感 '+(r['好感度']!==undefined?r['好感度']:'—')+'（'+relStage(r['好感度'])+'）</span>'
         +'<span class="tag">认知度 '+(r['认知度']!==undefined?r['认知度']:'—')+'</span>'
@@ -674,6 +719,7 @@ function renderList(){
         +'</div>'
         +'<div class="ch-out">'+outfitHtml(r)+'</div>'
         +bodyHtml(r)
+        +privHtml(r)
         +'</div>';
     });
     body.innerHTML=h;
