@@ -73,7 +73,13 @@ td{padding:3px 5px;border-bottom:1px solid #ffeef5;color:#555;vertical-align:top
 .ch{border:1px solid #ffd0df;border-radius:6px;padding:6px 7px;margin-bottom:6px;background:#fff;}
 .ch-top{display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
 .ch-nm{font-weight:700;color:#c9456f;font-size:12px;}
+.ch-top .tag,.ch-top .tag.vg{font-size:12px;line-height:1.5;}
 .ch-top .tag.vg{background:#fff0f6;border-color:#ffc2d8;color:#c9456f;font-weight:600;}
+.ch-top .del{border:1px solid #ffb3c9;background:#fff;color:#c9456f;border-radius:4px;padding:0 6px;font-size:11px;cursor:pointer;margin-left:auto;}
+.ch-top .del.warn{background:#ffe0ec;font-weight:600;}
+#p-list .trow{font-size:11px;}
+#p-list .trow label{font-size:11px;}
+#p-list .trow select{font-size:11px;padding:2px 4px;}
 .ch-top .tag.vg.nx{background:#f5f2ff;border-color:#dcd0f5;color:#8264ad;}
 .ch-out{margin-top:5px;display:flex;flex-wrap:wrap;gap:3px 12px;align-items:baseline;}
 .okv{display:inline-flex;gap:4px;font-size:11px;color:#555;line-height:1.5;max-width:100%;}
@@ -85,7 +91,7 @@ td{padding:3px 5px;border-bottom:1px solid #ffeef5;color:#555;vertical-align:top
 .ch-bd .bi{display:inline-flex;gap:4px;max-width:100%;}
 .ch-bd .bd-desc{display:none;flex-basis:100%;color:#8a7f86;font-size:10.5px;line-height:1.5;padding-left:2px;}
 .ch-bd.open .bd-desc{display:block;}
-.ch-bd .caret{color:#c9a8b6;font-size:9px;}
+.ch-bd .caret{color:#c9a8b6;font-size:16px;line-height:1;padding:0 2px;}
 .ch-bd .rk{flex:0 0 auto;color:#a0526a;font-weight:700;}
 @media (max-width:720px){ .grid2{grid-template-columns:1fr;} .opt button{flex:1 1 45%;} }
 </style>
@@ -235,6 +241,15 @@ td{padding:3px 5px;border-bottom:1px solid #ffeef5;color:#555;vertical-align:top
 
 <script>
 /* ================= 工具 ================= */
+var __open={}, __del=null;
+function toggleRow(el,key){ __open[key]=!el.classList.contains('open'); el.classList.toggle('open'); }
+function askDel(name){
+  if(__del===name){
+    writeStat(function(sd){ try{ if(sd && sd['角色'] && sd['角色'][name]) delete sd['角色'][name]; }catch(e){} });
+    __del=null; setTimeout(renderList,120); return;
+  }
+  __del=name; renderList();
+}
 function autoGrow(el){ el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }
 function writeStat(patchFn){
   try{
@@ -640,17 +655,23 @@ function outfitHtml(r){
 function bodyHtml(r){
   var bd=r['身体数据'];
   if(!bd || typeof bd!=='object') return '';
-  var parts=[['胸部','罩杯'],['腰部','腰型'],['臀部','臀型'],['腿部','腿型']];
+  var parts=[['胸部','罩杯'],['腰部','腰型'],['臀部','臀型'],['腿部','腿型'],['足部',''],['体态',''],['口腔','']];
   var items='', descs='', cnt=0;
   parts.forEach(function(p){
     var o=bd[p[0]];
+    if(typeof o==='string'){
+      cnt++;
+      items+='<span class="bi"><b>'+p[0]+'</b>'+esc(shortOf(o,10))+'</span>';
+      descs+='<span class="bd-desc">'+p[0]+'：'+esc(o)+'</span>';
+      return;
+    }
     if(!o || typeof o!=='object') return;
     cnt++;
     items+='<span class="bi"><b>'+p[0]+'</b>'+esc(o[p[1]]||'—')+'</span>';
     if(o['描述']){ descs+='<span class="bd-desc">'+p[0]+'：'+esc(o['描述'])+'</span>'; }
   });
   if(!cnt) return '';
-  return '<div class="ch-bd'+(descs?' has-d':'')+'"'+(descs?' onclick="this.classList.toggle(\'open\')"':'')+'>'+items+(descs?'<span class="caret">▾</span>':'')+descs+'</div>';
+  return '<div class="ch-bd'+(descs?' has-d':'')+(descs&&__open.bd?' open':'')+'"'+(descs?' onclick="toggleRow(this,\'bd\')"':'')+'>'+items+(descs?'<span class="caret">▾</span>':'')+descs+'</div>';
 }
 // 经验档案三格 → 全部写进人名右边：处女/非处女 · N次 ｜ 性癖 XX
 function expTag(r){
@@ -675,7 +696,7 @@ function expTag(r){
 function shortOf(s, max){
   s=String(s||'').trim();
   if(!s) return '';
-  var m=s.match(/^(类型[A-C][^：:]{0,14})[：:]/);     // 小穴常见写法「类型A·紧凑敏感型：…」
+  var m=s.match(/^([^，,。；;：:、]{2,14})[：:]/);
   if(m) return m[1];
   var c=s.split(/[，,。；;：:、]/)[0];
   return c.length>(max||10) ? c.slice(0,max||10)+'…' : c;
@@ -683,7 +704,7 @@ function shortOf(s, max){
 function privHtml(r){
   var p=r['隐私档案'];
   if(!p || typeof p!=='object') return '';
-  var parts=['小穴','菊穴','阴道','分泌物'], items='', descs='', cnt=0;
+  var parts=['阴毛','小穴','菊穴','阴道','分泌物'], items='', descs='', cnt=0;
   parts.forEach(function(k){
     var s=p[k]; if(!s) return;
     cnt++;
@@ -691,7 +712,21 @@ function privHtml(r){
     descs+='<span class="bd-desc">'+k+'：'+esc(s)+'</span>';
   });
   if(!cnt) return '';
-  return '<div class="ch-bd has-d" onclick="this.classList.toggle(\'open\')"><span class="rk">隐私</span>'+items+'<span class="caret">▾</span>'+descs+'</div>';
+  return '<div class="ch-bd has-d'+(__open.priv?' open':'')+'" onclick="toggleRow(this,\'priv\')"><span class="rk">隐私</span>'+items+'<span class="caret">▾</span>'+descs+'</div>';
+}
+
+function physHtml(r){
+  var p=r['生理反应'];
+  if(!p || typeof p!=='object') return '';
+  var parts=['经期','平常','晨起','排卵期黄体期','性爱反应'], items='', descs='', cnt=0;
+  parts.forEach(function(k){
+    var s=p[k]; if(!s) return;
+    cnt++;
+    items+='<span class="bi"><b>'+k+'</b>'+esc(shortOf(s,10))+'</span>';
+    descs+='<span class="bd-desc">'+k+'：'+esc(s)+'</span>';
+  });
+  if(!cnt) return '';
+  return '<div class="ch-bd has-d'+(__open.phys?' open':'')+'" onclick="toggleRow(this,\'phys\')"><span class="rk">生理</span>'+items+'<span class="caret">▾</span>'+descs+'</div>';
 }
 function renderList(){
   readStat(function(sd){
@@ -720,10 +755,13 @@ function renderList(){
         +'<span class="tag">认知度 '+(r['认知度']!==undefined?r['认知度']:'—')+'</span>'
         +'<span class="tag">学分 '+creditStr+'</span>'
         +'<span class="tag">地点 '+esc(r['当前所在地']||'—')+'</span>'
+        +( __del===k ? '<span class="del warn" onclick="askDel(\''+esc(k).replace(/'/g,'')+'\')">确认删除？</span>'
+                     : '<span class="del" onclick="askDel(\''+esc(k).replace(/'/g,'')+'\')">✕</span>' )
         +'</div>'
         +'<div class="ch-out">'+outfitHtml(r)+'</div>'
         +bodyHtml(r)
         +privHtml(r)
+        +physHtml(r)
         +'</div>';
     });
     body.innerHTML=h;
@@ -946,7 +984,7 @@ function bootAll(){ renderStatus(); renderRules(); renderPriv(); renderCtrl(); r
     else if(tries>=12){ clearInterval(boot); }
   },500);
   // 定时刷新状态行 + 「当前打开的面板」，避免面板停在首次读取时的空态
-  setInterval(function(){ renderStatus(); renderSug(); refreshOpenPanel(); },4000);
+  setInterval(function(){ renderStatus(); renderSug(); refreshOpenPanel(); },7000);
 })();
 window.renderStatus=renderStatus; window.renderRules=renderRules; window.renderPriv=renderPriv;
 window.renderCtrl=renderCtrl; window.renderAct=renderAct; window.renderList=renderList;
