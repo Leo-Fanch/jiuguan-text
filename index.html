@@ -659,6 +659,7 @@ function bodyHtml(r){
   var items='', descs='', cnt=0;
   parts.forEach(function(p){
     var o=bd[p[0]];
+    if(o===undefined || o===null || o==='') o=r[p[0]];   /* 兼容写在角色一层的旧档 */
     if(typeof o==='string'){
       cnt++;
       items+='<span class="bi"><b>'+p[0]+'</b>'+esc(shortOf(o,10))+'</span>';
